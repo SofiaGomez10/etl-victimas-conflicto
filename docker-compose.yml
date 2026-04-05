@@ -1,0 +1,113 @@
+x-airflow-common: &airflow-common
+  build: .
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: mysql+pymysql://airflow:airflow@mysql_airflow:3306/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./scripts:/opt/airflow/scripts
+    - ./data:/opt/airflow/data
+    - ./logs:/opt/airflow/logs
+    - ./great_expectations:/opt/airflow/great_expectations
+  depends_on:
+    mysql_airflow:
+      condition: service_healthy
+    mysql_dw:
+      condition: service_healthy
+  networks:
+    - etl_network
+
+services:
+
+  mysql_airflow:
+    image: mysql:8.0
+    container_name: mysql_airflow
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: airflow
+      MYSQL_USER: airflow
+      MYSQL_PASSWORD: airflow
+    volumes:
+      - mysql_airflow_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "airflow", "-pairflow"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - etl_network
+
+  mysql_dw:
+    image: mysql:8.0
+    container_name: mysql_dw
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: dw_victimas
+      MYSQL_USER: etl_user
+      MYSQL_PASSWORD: etl_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_dw_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "etl_user", "-petl_password"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - etl_network
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db migrate &&
+        airflow users create \
+          --username admin \
+          --firstname Admin \
+          --lastname ETL \
+          --role Admin \
+          --email admin@etl.com \
+          --password admin
+    restart: on-failure
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    command: airflow webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql_airflow:
+        condition: service_healthy
+      mysql_dw:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    restart: always
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    command: airflow scheduler
+    depends_on:
+      mysql_airflow:
+        condition: service_healthy
+      mysql_dw:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    restart: always
+
+networks:
+  etl_network:
+    driver: bridge
+
+volumes:
+  mysql_airflow_data:
+  mysql_dw_data:
