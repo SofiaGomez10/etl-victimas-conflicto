@@ -1,0 +1,110 @@
+{
+  "name": "suite_source1_cali",
+  "id": "4fdbd300-ba58-4ad1-b990-6d96acc8d16f",
+  "expectations": [
+    {
+      "type": "expect_table_columns_to_match_set",
+      "kwargs": {
+        "column_set": [
+          "vulnerability_index",
+          "total_victim",
+          "sex",
+          "ethnic_group",
+          "classification",
+          "victimization_fact",
+          "commune",
+          "date_processing",
+          "year"
+        ]
+      },
+      "meta": {},
+      "id": "29b2b8fd-6e65-410a-bf28-d52c8178d0d6",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "vulnerability_index"
+      },
+      "meta": {},
+      "id": "a1a588d1-3f77-44b6-bc0f-8816d874c5c6",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "total_victim"
+      },
+      "meta": {},
+      "id": "14a86ff1-c77b-421e-8f6a-23442532f73c",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "sex"
+      },
+      "meta": {},
+      "id": "b8f60ac5-5b82-4c9e-b13a-d15376e78ab6",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "ethnic_group"
+      },
+      "meta": {},
+      "id": "c853e1fe-2595-4119-8aca-c219baf889e8",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "classification"
+      },
+      "meta": {},
+      "id": "41fb2d33-19eb-4951-97be-e9c77b180583",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "victimization_fact"
+      },
+      "meta": {},
+      "id": "80232a79-fbac-4f50-aee5-ff7e2908dfb7",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "commune"
+      },
+      "meta": {},
+      "id": "11913873-2b02-4c99-aade-555e8213b0d0",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "date_processing"
+      },
+      "meta": {},
+      "id": "18845f7a-6bc6-49a7-bc04-b580daf695e1",
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "year"
+      },
+      "meta": {},
+      "id": "da6e24a7-2757-4ce6-87b3-29d3c53087ca",
+      "severity": "critical"
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "1.16.0"
+  },
+  "notes": null
+}
