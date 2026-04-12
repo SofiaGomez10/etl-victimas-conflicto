@@ -29,7 +29,7 @@ with DAG(
         task_id="ingest_source1_cali",
         python_callable=ingest_source1,
         op_kwargs={
-            "sqlite_path": "/opt/airflow/data/raw/Project_ETL.db",
+            "sqlite_path": "/opt/airflow/data/processed/Project_ETL.db",
             "csv_path": "/opt/airflow/data/raw/data-population-victims-of-armed-conflict.csv",
             "output_path": "/opt/airflow/data/processed/source1.parquet",
         },

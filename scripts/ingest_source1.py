@@ -25,9 +25,10 @@ def ingest_source1(sqlite_path, csv_path, output_path):
         """, conn)
         conn.close()
     else:
-        df = pd.read_csv(csv_path, encoding="utf-8", low_memory=False)
+        raise FileNotFoundError(f"SQLite DB not found at {sqlite_path}")
 
     df["source"] = "source1_cali"
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_parquet(output_path, index=False)
     print(f"Source 1 ingested: {len(df)} records")
+
