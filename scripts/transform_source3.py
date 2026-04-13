@@ -202,7 +202,7 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
 
 def transform_source3(input_path: str, output_path: str):
     print("Loading source 3...")
-    df = pd.read_csv(input_path)
+    df = pd.read_parquet(input_path)
     print(f"Rows before transform: {len(df)}")
 
     df = normalize_column_names(df)

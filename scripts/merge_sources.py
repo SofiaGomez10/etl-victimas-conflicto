@@ -23,7 +23,6 @@ def load_sources():
 
 
 def select_common_columns(df):
-
     for col in COLUMNS:
         if col not in df.columns:
             df[col] = pd.NA
@@ -51,9 +50,22 @@ def save_output(df):
     print(df["source"].value_counts())
 
 
-if __name__ == "__main__":
-    df1, df2, df3 = load_sources()
+def run_merge(source1_path, source2_path, source3_path, output_path):
+    """Entry point for Airflow task."""
+    df1 = pd.read_parquet(source1_path)
+    df2 = pd.read_parquet(source2_path)
+    df3 = pd.read_parquet(source3_path)
 
     df_final = merge_sources(df1, df2, df3)
 
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df_final.to_parquet(output_path, index=False)
+
+    print(f"Merge complete: {len(df_final)} rows")
+    print(df_final["source"].value_counts())
+
+
+if __name__ == "__main__":
+    df1, df2, df3 = load_sources()
+    df_final = merge_sources(df1, df2, df3)
     save_output(df_final)

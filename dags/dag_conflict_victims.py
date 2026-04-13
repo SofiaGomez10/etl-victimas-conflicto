@@ -5,6 +5,11 @@ from datetime import datetime, timedelta
 from scripts.ingest_source1 import ingest_source1
 from scripts.ingest_source2 import ingest_source2
 from scripts.ingest_source3 import ingest_source3
+from scripts.transform_source1 import transform_source1
+from scripts.transform_source2 import transform_source2
+from scripts.transform_source3 import transform_source3
+from scripts.merge_sources import run_merge
+from scripts.validate import validate_all
 
 default_args = {
     "retries": 2,
@@ -24,6 +29,8 @@ with DAG(
 
     start = EmptyOperator(task_id="start")
     end = EmptyOperator(task_id="end")
+
+    # ── Ingesta ───────────────────────────────────────────────────────────────
 
     task_ingest_f1 = PythonOperator(
         task_id="ingest_source1_cali",
@@ -54,21 +61,75 @@ with DAG(
         },
     )
 
-    task_transform = PythonOperator(
-        task_id="transform_and_merge",
-        python_callable=lambda: None,  # pending
+    # ── Transformación ────────────────────────────────────────────────────────
+
+    task_transform_f1 = PythonOperator(
+        task_id="transform_source1_cali",
+        python_callable=transform_source1,
+        op_kwargs={
+            "input_path": "/opt/airflow/data/processed/source1.parquet",
+            "output_path": "/opt/airflow/data/processed/source1_transformed.parquet",
+        },
     )
+
+    task_transform_f2 = PythonOperator(
+        task_id="transform_source2_santander",
+        python_callable=transform_source2,
+        op_kwargs={
+            "input_path": "/opt/airflow/data/processed/source2.parquet",
+            "output_path": "/opt/airflow/data/processed/source2_transformed.parquet",
+        },
+    )
+
+    task_transform_f3 = PythonOperator(
+        task_id="transform_source3_api",
+        python_callable=transform_source3,
+        op_kwargs={
+            "input_path": "/opt/airflow/data/processed/source3.parquet",
+            "output_path": "/opt/airflow/data/processed/source3_transformed.parquet",
+        },
+    )
+
+    # ── Merge ─────────────────────────────────────────────────────────────────
+
+    task_merge = PythonOperator(
+        task_id="merge_sources",
+        python_callable=run_merge,
+        op_kwargs={
+            "source1_path": "/opt/airflow/data/processed/source1_transformed.parquet",
+            "source2_path": "/opt/airflow/data/processed/source2_transformed.parquet",
+            "source3_path": "/opt/airflow/data/processed/source3_transformed.parquet",
+            "output_path": "/opt/airflow/data/processed/dataset_final.parquet",
+        },
+    )
+
+    # ── Validación Great Expectations ─────────────────────────────────────────
 
     task_validate = PythonOperator(
         task_id="validate_great_expectations",
-        python_callable=lambda: None,  # pending
+        python_callable=validate_all,
+        op_kwargs={
+            "source1_path": "/opt/airflow/data/processed/source1_transformed.parquet",
+            "source2_path": "/opt/airflow/data/processed/source2_transformed.parquet",
+            "source3_path": "/opt/airflow/data/processed/source3_transformed.parquet",
+            "gx_root": "/opt/airflow/great_expectations",
+        },
     )
+
+    # ── Carga ─────────────────────────────────────────────────────────────────
 
     task_load = PythonOperator(
         task_id="load_to_mysql",
         python_callable=lambda: None,  # pending
     )
 
+    # ── Flujo ─────────────────────────────────────────────────────────────────
+
     start >> [task_ingest_f1, task_ingest_f2, task_ingest_f3]
-    [task_ingest_f1, task_ingest_f2, task_ingest_f3] >> task_transform
-    task_transform >> task_validate >> task_load >> end
+
+    task_ingest_f1 >> task_transform_f1
+    task_ingest_f2 >> task_transform_f2
+    task_ingest_f3 >> task_transform_f3
+
+    [task_transform_f1, task_transform_f2, task_transform_f3] >> task_merge
+    task_merge >> task_validate >> task_load >> end

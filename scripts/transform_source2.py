@@ -128,7 +128,7 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
 
 def transform_source2(input_path: str, output_path: str):
     print("Loading source 2...")
-    df = pd.read_csv(input_path)
+    df = pd.read_parquet(input_path)
 
     df.columns = [col.lower() for col in df.columns]
 
