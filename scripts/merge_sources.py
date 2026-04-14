@@ -4,12 +4,15 @@ import os
 
 COLUMNS = [
     "date_processing",
+    "year",
+    "month",
     "state_dept",
     "victimization_fact",
     "sex",
     "ethnic_group",
     "age_range",
     "total_victim",
+    "total_victim_flag",
     "source",
 ]
 

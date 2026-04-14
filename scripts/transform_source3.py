@@ -2,6 +2,7 @@ import pandas as pd
 import unicodedata
 import os
 
+
 def remove_special_chars(text: str) -> str:
     if not isinstance(text, str):
         return text
@@ -40,6 +41,7 @@ def normalize_unknown_values(df: pd.DataFrame) -> pd.DataFrame:
         df[col] = df[col].replace(unknown_variants, "sin informacion")
 
     return df
+
 
 def normalize_departments(df: pd.DataFrame) -> pd.DataFrame:
     departamentos = {
@@ -160,6 +162,10 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
             errors="coerce"
         )
 
+        # Extraer year y month desde date_processing
+        df["year"] = df["date_processing"].dt.year.astype("Int64")
+        df["month"] = df["date_processing"].dt.month.astype("Int64")
+
     if "total_victim" in df.columns:
         df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
         df["total_victim_flag"] = df["total_victim"].apply(
@@ -246,6 +252,6 @@ def transform_source3(input_path: str, output_path: str):
 
 if __name__ == "__main__":
     transform_source3(
-        input_path="data/raw/source3.csv",
+        input_path="data/processed/source3.parquet",
         output_path="data/processed/source3_transformed.parquet",
     )

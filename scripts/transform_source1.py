@@ -19,7 +19,6 @@ def normalize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def normalize_unknown_values(df: pd.DataFrame) -> pd.DataFrame:
-
     unknown_variants = [
         "no registra",
         "no informa",
@@ -37,6 +36,7 @@ def normalize_unknown_values(df: pd.DataFrame) -> pd.DataFrame:
         df[col] = df[col].replace(unknown_variants, "sin informacion")
 
     return df
+
 
 def normalize_ethnicity(df: pd.DataFrame) -> pd.DataFrame:
     if "ethnic_group" in df.columns:
@@ -64,21 +64,19 @@ def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
 def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
     print("Casting data types...")
 
-    if "year" in df.columns:
-        df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
-
     if "vulnerability_index" in df.columns:
         df["vulnerability_index"] = pd.to_numeric(df["vulnerability_index"], errors="coerce")
 
     if "total_victim" in df.columns:
         df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
-
         df["total_victim_flag"] = df["total_victim"].apply(
             lambda x: "sin_informacion" if pd.isna(x) else "reportado"
         )
 
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(df["date_processing"], errors="coerce")
+        df["year"] = df["date_processing"].dt.year.astype("Int64")
+        df["month"] = df["date_processing"].dt.month.astype("Int64")
 
     categorical_cols = [
         "sex",
@@ -107,6 +105,7 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         "commune",
         "date_processing",
         "year",
+        "month",
         "source",
         "state_dept",
         "total_victim_flag",
@@ -116,7 +115,7 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
 
     df = (
         df.groupby(group_cols, dropna=False)
-        .agg(per_ocu=("total_victim", "sum"))
+        .agg(total_victim=("total_victim", "sum"))
         .reset_index()
     )
 
@@ -128,11 +127,9 @@ def transform_source1(input_path: str, output_path: str):
     df = pd.read_parquet(input_path)
     print(f"Rows before transform: {len(df)}")
 
-    # trazabilidad
     df["source"] = "cali"
     df["state_dept"] = "valle del cauca"
 
-    # Renombar columna classification a age_range
     if "classification" in df.columns:
         df = df.rename(columns={"classification": "age_range"})
 
@@ -141,7 +138,6 @@ def transform_source1(input_path: str, output_path: str):
     df = normalize_ethnicity(df)
     df = normalize_age_range(df)
     df = cast_data_types(df)
-
     df = group_and_aggregate(df)
 
     print(f"Rows after transform: {len(df)}")
@@ -149,7 +145,6 @@ def transform_source1(input_path: str, output_path: str):
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_parquet(output_path, index=False)
-
     print(f"Saved to {output_path}")
 
 

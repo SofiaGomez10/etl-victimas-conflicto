@@ -91,9 +91,12 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(df["date_processing"], errors="coerce")
 
+        # Extraer year y month desde date_processing
+        df["year"] = df["date_processing"].dt.year.astype("Int64")
+        df["month"] = df["date_processing"].dt.month.astype("Int64")
+
     if "total_victim" in df.columns:
         df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
-
         df["total_victim_flag"] = df["total_victim"].apply(
             lambda x: "sin_informacion" if pd.isna(x) else "reportado"
         )
@@ -115,7 +118,6 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
-
     group_cols = [col for col in df.columns if col != "total_victim"]
 
     df = (
@@ -125,6 +127,7 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return df
+
 
 def transform_source2(input_path: str, output_path: str):
     print("Loading source 2...")
@@ -167,6 +170,6 @@ def transform_source2(input_path: str, output_path: str):
 
 if __name__ == "__main__":
     transform_source2(
-        input_path="data/raw/source2.csv",
+        input_path="data/processed/source2.parquet",
         output_path="data/processed/source2_transformed.parquet",
     )
