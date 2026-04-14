@@ -2,7 +2,7 @@ import pandas as pd
 import sqlite3
 import os
 
-def ingest_source1(sqlite_path, csv_path, output_path):
+def ingest_source1(sqlite_path, output_path):
 
     if os.path.exists(sqlite_path):
         conn = sqlite3.connect(sqlite_path)

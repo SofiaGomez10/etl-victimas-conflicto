@@ -30,8 +30,6 @@ with DAG(
     start = EmptyOperator(task_id="start")
     end = EmptyOperator(task_id="end")
 
-    # ── Ingesta ───────────────────────────────────────────────────────────────
-
     task_ingest_f1 = PythonOperator(
         task_id="ingest_source1_cali",
         python_callable=ingest_source1,
@@ -61,8 +59,6 @@ with DAG(
         },
     )
 
-    # ── Transformación ────────────────────────────────────────────────────────
-
     task_transform_f1 = PythonOperator(
         task_id="transform_source1_cali",
         python_callable=transform_source1,
@@ -90,8 +86,6 @@ with DAG(
         },
     )
 
-    # ── Merge ─────────────────────────────────────────────────────────────────
-
     task_merge = PythonOperator(
         task_id="merge_sources",
         python_callable=run_merge,
@@ -102,8 +96,6 @@ with DAG(
             "output_path": "/opt/airflow/data/processed/dataset_final.parquet",
         },
     )
-
-    # ── Validación Great Expectations ─────────────────────────────────────────
 
     task_validate = PythonOperator(
         task_id="validate_great_expectations",
@@ -116,14 +108,12 @@ with DAG(
         },
     )
 
-    # ── Carga ─────────────────────────────────────────────────────────────────
 
     task_load = PythonOperator(
         task_id="load_to_mysql",
         python_callable=lambda: None,  # pending
     )
 
-    # ── Flujo ─────────────────────────────────────────────────────────────────
 
     start >> [task_ingest_f1, task_ingest_f2, task_ingest_f3]
 

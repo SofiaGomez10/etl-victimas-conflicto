@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 
-
 COLUMNS = [
     "date_processing",
     "year",
@@ -15,6 +14,7 @@ COLUMNS = [
     "total_victim_flag",
     "source",
 ]
+
 
 
 def load_sources():
