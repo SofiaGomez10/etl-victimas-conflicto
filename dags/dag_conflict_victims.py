@@ -9,7 +9,6 @@ from scripts.transform_source1 import transform_source1
 from scripts.transform_source2 import transform_source2
 from scripts.transform_source3 import transform_source3
 from scripts.merge_sources import run_merge
-from scripts.validate import validate_all
 
 default_args = {
     "retries": 2,
@@ -30,12 +29,13 @@ with DAG(
     start = EmptyOperator(task_id="start")
     end = EmptyOperator(task_id="end")
 
+    # ── Ingesta ───────────────────────────────────────────────────────────────
+
     task_ingest_f1 = PythonOperator(
         task_id="ingest_source1_cali",
         python_callable=ingest_source1,
         op_kwargs={
             "sqlite_path": "/opt/airflow/data/processed/Project_ETL.db",
-            "csv_path": "/opt/airflow/data/raw/data-population-victims-of-armed-conflict.csv",
             "output_path": "/opt/airflow/data/processed/source1.parquet",
         },
     )
@@ -58,6 +58,8 @@ with DAG(
             "output_path": "/opt/airflow/data/processed/source3.parquet",
         },
     )
+
+    # ── Transformación ────────────────────────────────────────────────────────
 
     task_transform_f1 = PythonOperator(
         task_id="transform_source1_cali",
@@ -86,6 +88,8 @@ with DAG(
         },
     )
 
+    # ── Merge ─────────────────────────────────────────────────────────────────
+
     task_merge = PythonOperator(
         task_id="merge_sources",
         python_callable=run_merge,
@@ -97,23 +101,21 @@ with DAG(
         },
     )
 
+    # ── Validación Great Expectations ─────────────────────────────────────────
+
     task_validate = PythonOperator(
         task_id="validate_great_expectations",
-        python_callable=validate_all,
-        op_kwargs={
-            "source1_path": "/opt/airflow/data/processed/source1_transformed.parquet",
-            "source2_path": "/opt/airflow/data/processed/source2_transformed.parquet",
-            "source3_path": "/opt/airflow/data/processed/source3_transformed.parquet",
-            "gx_root": "/opt/airflow/great_expectations",
-        },
+        python_callable=lambda: None,  # pending - se conecta luego de definir GX
     )
 
+    # ── Carga ─────────────────────────────────────────────────────────────────
 
     task_load = PythonOperator(
         task_id="load_to_mysql",
         python_callable=lambda: None,  # pending
     )
 
+    # ── Flujo ─────────────────────────────────────────────────────────────────
 
     start >> [task_ingest_f1, task_ingest_f2, task_ingest_f3]
 
