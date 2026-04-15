@@ -5,6 +5,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: mysql+pymysql://airflow:airflow@mysql_airflow:3306/airflow
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    PYTHONPATH: /opt/airflow
   volumes:
     - ./dags:/opt/airflow/dags
     - ./scripts:/opt/airflow/scripts
@@ -48,7 +49,7 @@ services:
       MYSQL_USER: etl_user
       MYSQL_PASSWORD: etl_password
     ports:
-      - "3307:3306"
+      - "3308:3306"
     volumes:
       - mysql_dw_data:/var/lib/mysql
     healthcheck:

@@ -118,7 +118,20 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
-    group_cols = [col for col in df.columns if col != "total_victim"]
+    group_cols = [
+        "date_processing",
+        "year",
+        "month",
+        "victimization_fact",
+        "sex",
+        "ethnic_group",
+        "age_range",
+        "state_dept",
+        "source",
+        "total_victim_flag",
+    ]
+
+    group_cols = [c for c in group_cols if c in df.columns]
 
     df = (
         df.groupby(group_cols, dropna=False)
@@ -127,7 +140,6 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return df
-
 
 def transform_source2(input_path: str, output_path: str):
     print("Loading source 2...")
