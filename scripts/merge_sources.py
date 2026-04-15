@@ -12,7 +12,6 @@ COLUMNS = [
     "age_range",
     "total_victim",
     "total_victim_flag",
-    "source",
 ]
 
 
