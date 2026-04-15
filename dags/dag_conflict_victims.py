@@ -9,6 +9,7 @@ from scripts.transform_source1 import transform_source1
 from scripts.transform_source2 import transform_source2
 from scripts.transform_source3 import transform_source3
 from scripts.merge_sources import run_merge
+from scripts.validate import validate_all
 
 default_args = {
     "retries": 2,
@@ -105,7 +106,11 @@ with DAG(
 
     task_validate = PythonOperator(
         task_id="validate_great_expectations",
-        python_callable=lambda: None,  # pending - se conecta luego de definir GX
+        python_callable=validate_all,
+        op_kwargs={
+            "dataset_final_path": "/opt/airflow/data/processed/dataset_final.parquet",
+            "gx_root": "/opt/airflow/great_expectations",
+        },
     )
 
     # ── Carga ─────────────────────────────────────────────────────────────────
