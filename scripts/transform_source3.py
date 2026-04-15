@@ -153,7 +153,8 @@ def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
+def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert numeric and date columns before groupby. No category conversion yet."""
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(
             df["date_processing"],
@@ -161,8 +162,6 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
             dayfirst=True,
             errors="coerce"
         )
-
-        # Extraer year y month desde date_processing
         df["year"] = df["date_processing"].dt.year.astype("Int64")
         df["month"] = df["date_processing"].dt.month.astype("Int64")
 
@@ -172,17 +171,43 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
             lambda x: "sin_informacion" if pd.isna(x) else "reportado"
         )
 
+    return df
+
+
+def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
+    """Group by explicit dimension columns only."""
+    group_cols = [
+        "date_processing",
+        "year",
+        "month",
+        "victimization_fact",
+        "sex",
+        "ethnic_group",
+        "age_range",
+        "state_dept",
+        "source",
+        "total_victim_flag",
+    ]
+
+    group_cols = [c for c in group_cols if c in df.columns]
+
+    df = (
+        df.groupby(group_cols, dropna=False)
+        .agg(total_victim=("total_victim", "sum"))
+        .reset_index()
+    )
+
+    return df
+
+
+def cast_categories(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert to category AFTER groupby when dataframe is smaller."""
     categorical_cols = [
-        "nom_rpt",
-        "cod_pais",
-        "pais",
-        "cod_estado_depto",
         "state_dept",
         "sex",
         "ethnic_group",
         "age_range",
-        "per_llegada",
-        "eventos",
+        "victimization_fact",
         "source",
         "total_victim_flag",
     ]
@@ -190,18 +215,6 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
     for col in categorical_cols:
         if col in df.columns:
             df[col] = df[col].astype("category")
-
-    return df
-
-
-def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
-    group_cols = [col for col in df.columns if col != "total_victim"]
-
-    df = (
-        df.groupby(group_cols, dropna=False)
-        .agg(total_victim=("total_victim", "sum"))
-        .reset_index()
-    )
 
     return df
 
@@ -227,20 +240,18 @@ def transform_source3(input_path: str, output_path: str):
 
     df = normalize_text_columns(df)
     df = normalize_unknown_values(df)
-
     df = normalize_departments(df)
     df = normalize_ethnicity(df)
     df = normalize_age_range(df)
 
-    if "per_llegada" in df.columns:
-        df["per_llegada"] = df["per_llegada"].fillna("sin informacion")
+    # Prepare numeric/date types before groupby (no category yet)
+    df = prepare_for_groupby(df)
 
-    if "eventos" in df.columns:
-        df["eventos"] = df["eventos"].fillna("sin informacion")
-
-    df = cast_data_types(df)
-
+    # Groupby on explicit dimension columns only
     df = group_and_aggregate(df)
+
+    # Convert to category AFTER groupby (fewer rows now)
+    df = cast_categories(df)
 
     print(f"Rows after transform: {len(df)}")
     print(f"Columns: {list(df.columns)}")

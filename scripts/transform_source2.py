@@ -87,11 +87,10 @@ def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
+def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert numeric and date columns before groupby. No category conversion yet."""
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(df["date_processing"], errors="coerce")
-
-        # Extraer year y month desde date_processing
         df["year"] = df["date_processing"].dt.year.astype("Int64")
         df["month"] = df["date_processing"].dt.month.astype("Int64")
 
@@ -100,19 +99,6 @@ def cast_data_types(df: pd.DataFrame) -> pd.DataFrame:
         df["total_victim_flag"] = df["total_victim"].apply(
             lambda x: "sin_informacion" if pd.isna(x) else "reportado"
         )
-
-    categorical_cols = [
-        "sex",
-        "ethnic_group",
-        "victimization_fact",
-        "age_range",
-        "state_dept",
-        "total_victim_flag",
-    ]
-
-    for col in categorical_cols:
-        if col in df.columns:
-            df[col] = df[col].astype("category")
 
     return df
 
@@ -140,6 +126,25 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return df
+
+
+def cast_categories(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert to category AFTER groupby when dataframe is smaller."""
+    categorical_cols = [
+        "sex",
+        "ethnic_group",
+        "victimization_fact",
+        "age_range",
+        "state_dept",
+        "total_victim_flag",
+    ]
+
+    for col in categorical_cols:
+        if col in df.columns:
+            df[col] = df[col].astype("category")
+
+    return df
+
 
 def transform_source2(input_path: str, output_path: str):
     print("Loading source 2...")
@@ -170,14 +175,19 @@ def transform_source2(input_path: str, output_path: str):
     df = normalize_ethnicity(df)
     df = normalize_age_range(df)
 
-    df = cast_data_types(df)
+    # Prepare numeric/date types before groupby (no category yet)
+    df = prepare_for_groupby(df)
 
+    # Groupby on string columns (no category explosion)
     df = group_and_aggregate(df)
+
+    # Convert to category AFTER groupby (fewer rows now)
+    df = cast_categories(df)
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_parquet(output_path, index=False)
 
-    print("Source 2 transformed successfully")
+    print(f"Source 2 transformed: {len(df)} rows")
 
 
 if __name__ == "__main__":

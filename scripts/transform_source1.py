@@ -66,12 +66,6 @@ def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
     if "vulnerability_index" in df.columns:
         df["vulnerability_index"] = pd.to_numeric(df["vulnerability_index"], errors="coerce")
 
-    if "total_victim" in df.columns:
-        df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
-        df["total_victim_flag"] = df["total_victim"].apply(
-            lambda x: "sin_informacion" if pd.isna(x) else "reportado"
-        )
-
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(df["date_processing"], errors="coerce")
         df["year"] = df["date_processing"].dt.year.astype("Int64")
@@ -81,6 +75,10 @@ def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Each row in source 1 represents one victim.
+    Use size() to count victims per group instead of summing.
+    """
     group_cols = [
         "vulnerability_index",
         "sex",
@@ -93,15 +91,14 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         "month",
         "source",
         "state_dept",
-        "total_victim_flag",
     ]
 
     group_cols = [c for c in group_cols if c in df.columns]
 
     df = (
         df.groupby(group_cols, dropna=False)
-        .agg(total_victim=("total_victim", "sum"))
-        .reset_index()
+        .size()
+        .reset_index(name="total_victim")
     )
 
     return df
@@ -116,7 +113,6 @@ def cast_categories(df: pd.DataFrame) -> pd.DataFrame:
         "victimization_fact",
         "commune",
         "state_dept",
-        "total_victim_flag",
     ]
 
     for col in categorical_cols:
@@ -137,18 +133,22 @@ def transform_source1(input_path: str, output_path: str):
     if "classification" in df.columns:
         df = df.rename(columns={"classification": "age_range"})
 
+    # Drop total_victim from SQLite if present (it has wrong values)
+    if "total_victim" in df.columns:
+        df = df.drop(columns=["total_victim"])
+
     df = normalize_text_columns(df)
     df = normalize_unknown_values(df)
     df = normalize_ethnicity(df)
     df = normalize_age_range(df)
 
-    # Prepare numeric/date types before groupby (no category yet)
+    # Prepare numeric/date types before groupby
     df = prepare_for_groupby(df)
 
-    # Groupby on string columns (no category explosion)
+    # Count victims per group using size()
     df = group_and_aggregate(df)
 
-    # Convert to category AFTER groupby (fewer rows now)
+    # Convert to category AFTER groupby
     df = cast_categories(df)
 
     print(f"Rows after transform: {len(df)}")

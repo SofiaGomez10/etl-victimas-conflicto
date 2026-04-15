@@ -31,4 +31,3 @@ def ingest_source1(sqlite_path, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_parquet(output_path, index=False)
     print(f"Source 1 ingested: {len(df)} records")
-
