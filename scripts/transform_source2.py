@@ -83,21 +83,44 @@ def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
     if "age_range" in df.columns:
         df["age_range"] = df["age_range"].str.replace("entre", "", regex=False)
         df["age_range"] = df["age_range"].str.replace("y", "-", regex=False)
+        df["age_range"] = df["age_range"].str.replace(" - ", "-", regex=False)
         df["age_range"] = df["age_range"].str.strip()
+    return df
+
+
+def normalize_victimization_fact(df: pd.DataFrame) -> pd.DataFrame:
+    if "victimization_fact" in df.columns:
+        victimization_mapping = {
+            "acto terrorista / atentados / combates / enfrentamientos / hostigamientos": "acto terrorista/atentados/combates/enfrentamientos/hostigamientos",
+            "desaparicia3n forzada": "desaparicion forzada",
+            "desaparicia\x83a3n forzada": "desaparicion forzada",
+            "desaparicii¿1⁄2n forzada": "desaparicion forzada",
+            "vinculacia3n de nia±os nia±as y adolescentes a actividades relacionadas con grupos armados": "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
+            "vinculacii¿1⁄2n de nii¿1⁄2os nii¿1⁄2as y adolescentes a actividades relacionadas con grupos armados": "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
+            "vinculacia\x83a3n de nia\x83a±os nia\x83a±as y adolescentes a actividades relacionadas con grupos armados": "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
+            "minas antipersonal, municii¿1⁄2n sin explotar y artefacto explosivo improvisado": "minas antipersonal, municion sin explotar y artefacto explosivo improvisado",
+            "minas antipersonal, municia3n sin explotar y artefacto explosivo improvisado": "minas antipersonal, municion sin explotar y artefacto explosivo improvisado",
+        }
+        df["victimization_fact"] = df["victimization_fact"].replace(victimization_mapping)
     return df
 
 
 def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
     """Convert numeric and date columns before groupby. No category conversion yet."""
     if "date_processing" in df.columns:
-        df["date_processing"] = pd.to_datetime(df["date_processing"], errors="coerce")
+        df["date_processing"] = pd.to_datetime(
+            df["date_processing"],
+            format="mixed",
+            dayfirst=True,
+            errors="coerce"
+        )
         df["year"] = df["date_processing"].dt.year.astype("Int64")
         df["month"] = df["date_processing"].dt.month.astype("Int64")
 
     if "total_victim" in df.columns:
         df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
         df["total_victim_flag"] = df["total_victim"].apply(
-            lambda x: "sin_informacion" if pd.isna(x) else "reportado"
+            lambda x: "sin informacion" if pd.isna(x) else "reportado"
         )
 
     return df
@@ -172,6 +195,7 @@ def transform_source2(input_path: str, output_path: str):
 
     df["victimization_fact"] = df["victimization_fact"].fillna(df["param_victimization_fact"])
 
+    df = normalize_victimization_fact(df)
     df = normalize_ethnicity(df)
     df = normalize_age_range(df)
 

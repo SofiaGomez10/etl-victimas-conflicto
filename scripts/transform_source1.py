@@ -49,6 +49,16 @@ def normalize_ethnicity(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def normalize_sex_column(df: pd.DataFrame) -> pd.DataFrame:
+    if "sex" in df.columns:
+        sex_map = {
+            "masculino": "hombre",
+            "femenino": "mujer",
+        }
+        df["sex"] = df["sex"].replace(sex_map)
+    return df
+
+
 def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
     if "age_range" in df.columns:
         classification_map = {
@@ -101,6 +111,11 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index(name="total_victim")
     )
 
+    # Add flag after aggregation since total_victim now exists
+    df["total_victim_flag"] = df["total_victim"].apply(
+        lambda x: "sin informacion" if pd.isna(x) else "reportado"
+    )
+
     return df
 
 
@@ -113,6 +128,7 @@ def cast_categories(df: pd.DataFrame) -> pd.DataFrame:
         "victimization_fact",
         "commune",
         "state_dept",
+        "total_victim_flag",
     ]
 
     for col in categorical_cols:
@@ -140,6 +156,7 @@ def transform_source1(input_path: str, output_path: str):
     df = normalize_text_columns(df)
     df = normalize_unknown_values(df)
     df = normalize_ethnicity(df)
+    df = normalize_sex_column(df)
     df = normalize_age_range(df)
 
     # Prepare numeric/date types before groupby

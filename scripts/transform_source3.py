@@ -149,6 +149,7 @@ def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
         df["age_range"] = df["age_range"].astype(str)
         df["age_range"] = df["age_range"].str.replace("entre", "", regex=False)
         df["age_range"] = df["age_range"].str.replace("y", "-", regex=False)
+        df["age_range"] = df["age_range"].str.replace(" - ", "-", regex=False)
         df["age_range"] = df["age_range"].str.strip()
     return df
 
@@ -168,7 +169,7 @@ def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
     if "total_victim" in df.columns:
         df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
         df["total_victim_flag"] = df["total_victim"].apply(
-            lambda x: "sin_informacion" if pd.isna(x) else "reportado"
+            lambda x: "sin informacion" if pd.isna(x) else "reportado"
         )
 
     return df
