@@ -12,10 +12,9 @@ def ingest_source3(url, start_year, output_path):
         params = {
             "$limit": page_size,
             "$offset": offset,
-            "$where": f"anio >= '{start_year}'",
-            "$order": "anio DESC"
+            "$where": f"vigencia >= '{start_year}'", 
+            "$order": "vigencia DESC"  
         }
-
         try:
             response = requests.get(url, params=params, timeout=120)
             response.raise_for_status()
