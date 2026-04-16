@@ -49,7 +49,7 @@ def save_output(df):
     df.to_parquet(output_path, index=False)
 
     print(f"Filas totales: {len(df)}")
-    print(df["source"].value_counts())
+    print(f"Columns: {list(df_final.columns)}")
 
 
 def run_merge(source1_path, source2_path, source3_path, output_path):
@@ -64,8 +64,7 @@ def run_merge(source1_path, source2_path, source3_path, output_path):
     df_final.to_parquet(output_path, index=False)
 
     print(f"Merge complete: {len(df_final)} rows")
-    print(df_final["source"].value_counts())
-
+    print(f"Columns: {list(df_final.columns)}")
 
 if __name__ == "__main__":
     df1, df2, df3 = load_sources()

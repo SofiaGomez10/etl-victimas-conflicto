@@ -23,17 +23,16 @@
       "expectation_type": "expect_table_columns_to_match_set",
       "kwargs": {
         "column_set": [
-          "sex",
-          "age_range",
-          "date_processing",
-          "total_victim_flag",
           "victimization_fact",
-          "state_dept",
-          "source",
           "ethnic_group",
+          "date_processing",
           "total_victim",
+          "total_victim_flag",
+          "year",
+          "sex",
           "month",
-          "year"
+          "age_range",
+          "state_dept"
         ],
         "exact_match": null
       },
@@ -215,24 +214,6 @@
           "metric_configuration": {
             "domain_kwargs": {
               "column": "total_victim_flag"
-            },
-            "metric_name": "column_values.nonnull.unexpected_count",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_values_to_not_be_null",
-      "kwargs": {
-        "column": "source"
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "source"
             },
             "metric_name": "column_values.nonnull.unexpected_count",
             "metric_value_kwargs": null
@@ -1257,66 +1238,6 @@
       }
     },
     {
-      "expectation_type": "expect_column_value_lengths_to_be_between",
-      "kwargs": {
-        "column": "source",
-        "max_value": 19,
-        "min_value": 4,
-        "mostly": 1.0,
-        "strict_max": false,
-        "strict_min": false
-      },
-      "meta": {
-        "profiler_details": {
-          "column_max_length_range_estimator": {
-            "metric_configuration": {
-              "domain_kwargs": {
-                "column": "source"
-              },
-              "metric_name": "column_values.length.max",
-              "metric_value_kwargs": null
-            },
-            "num_batches": 1
-          },
-          "column_min_length_range_estimator": {
-            "metric_configuration": {
-              "domain_kwargs": {
-                "column": "source"
-              },
-              "metric_name": "column_values.length.min",
-              "metric_value_kwargs": null
-            },
-            "num_batches": 1
-          }
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_values_to_match_regex",
-      "kwargs": {
-        "column": "source",
-        "mostly": 1.0,
-        "regex": "[A-Za-z0-9\\.,;:!?()\\\"'%\\-]+"
-      },
-      "meta": {
-        "profiler_details": {
-          "evaluated_regexes": {
-            "(?:25[0-5]|2[0-4]\\d|[01]\\d{2}|\\d{1,2})(?:.(?:25[0-5]|2[0-4]\\d|[01]\\d{2}|\\d{1,2})){3}": 0.0,
-            "-?\\d+": 0.0,
-            "-?\\d+(?:\\.\\d*)?": 0.0,
-            "<\\/?(?:p|a|b|img)(?: \\/)?>": 0.0,
-            "[A-Za-z0-9\\.,;:!?()\\\"'%\\-]+": 1.0,
-            "\\b[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}-[0-5][0-9a-fA-F]{3}-[089ab][0-9a-fA-F]{3}-\\b[0-9a-fA-F]{12}\\b ": 0.0,
-            "\\d+": 0.0,
-            "\\s+$": 0.0,
-            "^\\s+": 0.0,
-            "https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,255}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_\\+.~#()?&//=]*)": 0.0
-          },
-          "success_ratio": 1.0
-        }
-      }
-    },
-    {
       "expectation_type": "expect_column_values_to_be_in_set",
       "kwargs": {
         "column": "year",
@@ -1481,39 +1402,39 @@
         "column": "state_dept",
         "mostly": 1.0,
         "value_set": [
-          "magdalena",
+          "caldas",
+          "cesar",
+          "casanare",
           "valle del cauca",
-          "vichada",
-          "atlantico",
           "antioquia",
+          "norte de santander",
+          "guaviare",
+          "caqueta",
+          "la guajira",
+          "atlantico",
           "choco",
           "risaralda",
-          "cordoba",
-          "tolima",
           "bogota, d.c.",
-          "la guajira",
-          "putumayo",
           "arauca",
-          "casanare",
-          "norte de santander",
-          "narino",
-          "amazonas",
-          "guainia",
-          "boyaca",
-          "bolivar",
-          "meta",
-          "guaviare",
-          "santander",
-          "caqueta",
-          "caldas",
-          "vaupes",
-          "quindio",
           "huila",
-          "cundinamarca",
-          "cesar",
           "cauca",
+          "putumayo",
+          "bolivar",
+          "vichada",
+          "cundinamarca",
+          "narino",
+          "sin informacion",
+          "guainia",
+          "magdalena",
+          "tolima",
+          "boyaca",
+          "cordoba",
+          "quindio",
           "sucre",
-          "sin informacion"
+          "vaupes",
+          "meta",
+          "santander",
+          "amazonas"
         ]
       },
       "meta": {
@@ -1580,24 +1501,24 @@
         "column": "victimization_fact",
         "mostly": 1.0,
         "value_set": [
-          "lesiones personales fisicas",
-          "abandono o despojo forzado de tierras",
-          "minas antipersonal, municion sin explotar y artefacto explosivo improvisado",
-          "delitos contra la libertad y la integridad sexual en desarrollo del conflicto armado",
-          "desplazamiento forzado",
-          "perdida de bienes muebles o inmuebles",
-          "tortura",
-          "desaparicion forzada",
-          "secuestro",
           "acto terrorista/atentados/combates/enfrentamientos/hostigamientos",
-          "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
+          "homicidio",
+          "desaparicion forzada",
+          "lesiones personales fisicas",
+          "delitos contra la libertad y la integridad sexual en desarrollo del conflicto armado",
+          "abandono o despojo forzado de tierras",
+          "lesiones personales y psicologicas que produzcan o no incapacidad permanente",
+          "sin informacion",
+          "perdida de bienes muebles o inmuebles",
+          "confinamiento",
           "amenaza",
           "eventos masivos",
-          "confinamiento",
-          "lesiones personales psicologicas",
-          "homicidio",
-          "lesiones personales y psicologicas que produzcan o no incapacidad permanente",
-          "sin informacion"
+          "minas antipersonal, municion sin explotar y artefacto explosivo improvisado",
+          "secuestro",
+          "tortura",
+          "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
+          "desplazamiento forzado",
+          "lesiones personales psicologicas"
         ]
       },
       "meta": {
@@ -1664,11 +1585,11 @@
         "column": "sex",
         "mostly": 1.0,
         "value_set": [
-          "intersexual",
-          "mujer",
-          "hombre",
           "lgbti",
-          "sin informacion"
+          "sin informacion",
+          "mujer",
+          "intersexual",
+          "hombre"
         ]
       },
       "meta": {
@@ -1735,14 +1656,14 @@
         "column": "ethnic_group",
         "mostly": 1.0,
         "value_set": [
+          "afrocolombiano",
+          "raizal",
+          "mestizo",
+          "palenquero",
           "indigena",
           "otro",
-          "raizal",
-          "afrocolombiano",
-          "palenquero",
-          "ninguna",
           "rom",
-          "mestizo"
+          "ninguna"
         ]
       },
       "meta": {
@@ -1809,19 +1730,19 @@
         "column": "age_range",
         "mostly": 1.0,
         "value_set": [
-          "18-28",
-          "29-59",
-          "60+",
-          "60-110",
-          "0-5",
-          "29-60",
-          "27-59",
-          "6-11",
-          "61-100",
-          "12-17",
           "0-13",
           "14-26",
-          "sin informacion"
+          "sin informacion",
+          "61-100",
+          "27-59",
+          "12-17",
+          "29-59",
+          "29-60",
+          "0-5",
+          "60+",
+          "60-110",
+          "6-11",
+          "18-28"
         ]
       },
       "meta": {
@@ -1949,82 +1870,13 @@
           "num_batches": 1
         }
       }
-    },
-    {
-      "expectation_type": "expect_column_values_to_be_in_set",
-      "kwargs": {
-        "column": "source",
-        "mostly": 1.0,
-        "value_set": [
-          "santander",
-          "cali",
-          "nacional (colombia)"
-        ]
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "source"
-            },
-            "metric_name": "column.distinct_values",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1,
-          "parse_strings_as_datetimes": false
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_unique_value_count_to_be_between",
-      "kwargs": {
-        "column": "source",
-        "max_value": 3,
-        "min_value": 3,
-        "strict_max": false,
-        "strict_min": false
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "source"
-            },
-            "metric_name": "column.distinct_values.count",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
-      "kwargs": {
-        "column": "source",
-        "max_value": 1.97046923440702e-05,
-        "min_value": 1.97046923440702e-05,
-        "strict_max": false,
-        "strict_min": false
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "source"
-            },
-            "metric_name": "column.unique_proportion",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1
-        }
-      }
     }
   ],
   "ge_cloud_id": null,
   "meta": {
     "citations": [
       {
-        "citation_date": "2026-04-15T20:17:21.773749Z",
+        "citation_date": "2026-04-16T01:31:47.206336Z",
         "comment": "Created by effective Rule-Based Profiler of OnboardingDataAssistant with the configuration included.\n"
       }
     ],
