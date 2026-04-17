@@ -1,7 +1,8 @@
+#import the necessary libraries
 import pandas as pd
 import pymysql
 
-
+# Configuration for the DW 
 DB_CONFIG = {
     "host": "mysql_dw",
     "port": 3306,
@@ -11,6 +12,7 @@ DB_CONFIG = {
     "charset": "utf8mb4",
 }
 
+# Data Warehouse script
 DDL = [
     """CREATE TABLE IF NOT EXISTS person (
         id_person INT PRIMARY KEY NOT NULL,
@@ -47,12 +49,36 @@ DDL = [
 
 
 def make_dim(df, cols):
+    """
+    Builds a table from some columns in the given DataFrame.
+
+    Extracts the specified columns, removes duplicate rows, resets the index,
+    and inserts a surrogate integer key column 'id' starting at 1. The result
+    is a deduplicated dimension table ready to be loaded into the Data Warehouse.
+
+    Args:
+        df (pd.DataFrame): Source DataFrame containing the columns to extract.
+        cols (list[str]): List of column names that define the dimension.
+    """
     dim = df[cols].drop_duplicates().reset_index(drop=True)
     dim.insert(0, "id", range(1, len(dim) + 1))
     return dim
 
 
 def load_to_mysql(dataset_path: str):
+    """
+    Loads the validated consolidated dataset into MySQL following a star schema.
+
+    Reads the Parquet file at 'dataset_path', creates the schema tables if they
+    do not exist, builds four dimension tables (person, victimizing_act, location,
+    registration_date) using make_dim, inserts each dimension into its corresponding
+    MySQL table using INSERT IGNORE to avoid duplicates, and then resolves the
+    surrogate keys via merge operations to populate the fact table (victims) with
+    one row per record. 
+
+    Args:
+        dataset_path (str): Path to the consolidated Parquet file to be loaded.
+    """
     print("Loading data...")
     df = pd.read_parquet(dataset_path)
     print(f"Rows: {len(df)}")
