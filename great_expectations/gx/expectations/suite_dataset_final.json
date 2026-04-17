@@ -5,8 +5,8 @@
     {
       "expectation_type": "expect_table_row_count_to_be_between",
       "kwargs": {
-        "max_value": 152248,
-        "min_value": 152248
+        "max_value": 126861,
+        "min_value": 126861
       },
       "meta": {
         "profiler_details": {
@@ -23,16 +23,15 @@
       "expectation_type": "expect_table_columns_to_match_set",
       "kwargs": {
         "column_set": [
+          "date_processing",
+          "state_dept",
+          "age_range",
           "victimization_fact",
           "ethnic_group",
-          "date_processing",
           "total_victim",
-          "total_victim_flag",
-          "year",
-          "sex",
           "month",
-          "age_range",
-          "state_dept"
+          "year",
+          "sex"
         ],
         "exact_match": null
       },
@@ -205,24 +204,6 @@
       }
     },
     {
-      "expectation_type": "expect_column_values_to_not_be_null",
-      "kwargs": {
-        "column": "total_victim_flag"
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "total_victim_flag"
-            },
-            "metric_name": "column_values.nonnull.unexpected_count",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1
-        }
-      }
-    },
-    {
       "expectation_type": "expect_column_min_to_be_between",
       "kwargs": {
         "column": "year",
@@ -314,8 +295,8 @@
           ],
           "value_ranges": [
             [
-              2020,
-              2020
+              2022,
+              2022
             ],
             [
               2024,
@@ -374,8 +355,8 @@
       "expectation_type": "expect_column_mean_to_be_between",
       "kwargs": {
         "column": "year",
-        "max_value": 2021.7951894277758,
-        "min_value": 2021.7951894277758,
+        "max_value": 2022.4581392232444,
+        "min_value": 2022.4581392232444,
         "strict_max": false,
         "strict_min": false
       },
@@ -396,8 +377,8 @@
       "expectation_type": "expect_column_stdev_to_be_between",
       "kwargs": {
         "column": "year",
-        "max_value": 4.192347649187451,
-        "min_value": 4.192347649187451,
+        "max_value": 3.791621142771581,
+        "min_value": 3.791621142771581,
         "strict_max": false,
         "strict_min": false
       },
@@ -506,8 +487,8 @@
           ],
           "value_ranges": [
             [
-              4,
-              4
+              3,
+              3
             ],
             [
               7,
@@ -566,8 +547,8 @@
       "expectation_type": "expect_column_mean_to_be_between",
       "kwargs": {
         "column": "month",
-        "max_value": 6.9730111397194054,
-        "min_value": 6.9730111397194054,
+        "max_value": 6.731824595423338,
+        "min_value": 6.731824595423338,
         "strict_max": false,
         "strict_min": false
       },
@@ -588,8 +569,8 @@
       "expectation_type": "expect_column_stdev_to_be_between",
       "kwargs": {
         "column": "month",
-        "max_value": 3.5294840462149804,
-        "min_value": 3.5294840462149804,
+        "max_value": 3.5979365534347814,
+        "min_value": 3.5979365534347814,
         "strict_max": false,
         "strict_min": false
       },
@@ -702,12 +683,12 @@
               1.0
             ],
             [
-              2.0,
-              2.0
+              3.0,
+              3.0
             ],
             [
-              19.0,
-              19.0
+              42.0,
+              42.0
             ]
           ]
         }
@@ -736,8 +717,8 @@
       "expectation_type": "expect_column_median_to_be_between",
       "kwargs": {
         "column": "total_victim",
-        "max_value": 2.0,
-        "min_value": 2.0,
+        "max_value": 3.0,
+        "min_value": 3.0,
         "strict_max": false,
         "strict_min": false
       },
@@ -758,8 +739,8 @@
       "expectation_type": "expect_column_mean_to_be_between",
       "kwargs": {
         "column": "total_victim",
-        "max_value": 537.2619082024066,
-        "min_value": 537.2619082024066,
+        "max_value": 670.2158661842489,
+        "min_value": 670.2158661842489,
         "strict_max": false,
         "strict_min": false
       },
@@ -780,8 +761,8 @@
       "expectation_type": "expect_column_stdev_to_be_between",
       "kwargs": {
         "column": "total_victim",
-        "max_value": 3716.0362686397507,
-        "min_value": 3716.0362686397507,
+        "max_value": 4122.284887992722,
+        "min_value": 4122.284887992722,
         "strict_max": false,
         "strict_min": false
       },
@@ -824,8 +805,8 @@
       "expectation_type": "expect_column_max_to_be_between",
       "kwargs": {
         "column": "date_processing",
-        "max_value": "2026-02-28T00:00:00",
-        "min_value": "2026-02-28T00:00:00",
+        "max_value": "2026-03-31T00:00:00",
+        "min_value": "2026-03-31T00:00:00",
         "strict_max": false,
         "strict_min": false
       },
@@ -846,7 +827,7 @@
       "expectation_type": "expect_column_values_to_be_between",
       "kwargs": {
         "column": "date_processing",
-        "max_value": "2026-02-28T00:00:00",
+        "max_value": "2026-03-31T00:00:00",
         "min_value": "2012-06-05T00:00:00",
         "mostly": 1.0,
         "strict_max": false,
@@ -1163,72 +1144,12 @@
         "profiler_details": {
           "evaluated_regexes": {
             "(?:25[0-5]|2[0-4]\\d|[01]\\d{2}|\\d{1,2})(?:.(?:25[0-5]|2[0-4]\\d|[01]\\d{2}|\\d{1,2})){3}": 0.0,
-            "-?\\d+": 0.9471454469024224,
-            "-?\\d+(?:\\.\\d*)?": 0.9471454469024224,
+            "-?\\d+": 0.9381606640338639,
+            "-?\\d+(?:\\.\\d*)?": 0.9381606640338639,
             "<\\/?(?:p|a|b|img)(?: \\/)?>": 0.0,
             "[A-Za-z0-9\\.,;:!?()\\\"'%\\-]+": 1.0,
             "\\b[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}-[0-5][0-9a-fA-F]{3}-[089ab][0-9a-fA-F]{3}-\\b[0-9a-fA-F]{12}\\b ": 0.0,
-            "\\d+": 0.9471454469024224,
-            "\\s+$": 0.0,
-            "^\\s+": 0.0,
-            "https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,255}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_\\+.~#()?&//=]*)": 0.0
-          },
-          "success_ratio": 1.0
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_value_lengths_to_be_between",
-      "kwargs": {
-        "column": "total_victim_flag",
-        "max_value": 15,
-        "min_value": 9,
-        "mostly": 1.0,
-        "strict_max": false,
-        "strict_min": false
-      },
-      "meta": {
-        "profiler_details": {
-          "column_max_length_range_estimator": {
-            "metric_configuration": {
-              "domain_kwargs": {
-                "column": "total_victim_flag"
-              },
-              "metric_name": "column_values.length.max",
-              "metric_value_kwargs": null
-            },
-            "num_batches": 1
-          },
-          "column_min_length_range_estimator": {
-            "metric_configuration": {
-              "domain_kwargs": {
-                "column": "total_victim_flag"
-              },
-              "metric_name": "column_values.length.min",
-              "metric_value_kwargs": null
-            },
-            "num_batches": 1
-          }
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_values_to_match_regex",
-      "kwargs": {
-        "column": "total_victim_flag",
-        "mostly": 1.0,
-        "regex": "[A-Za-z0-9\\.,;:!?()\\\"'%\\-]+"
-      },
-      "meta": {
-        "profiler_details": {
-          "evaluated_regexes": {
-            "(?:25[0-5]|2[0-4]\\d|[01]\\d{2}|\\d{1,2})(?:.(?:25[0-5]|2[0-4]\\d|[01]\\d{2}|\\d{1,2})){3}": 0.0,
-            "-?\\d+": 0.0,
-            "-?\\d+(?:\\.\\d*)?": 0.0,
-            "<\\/?(?:p|a|b|img)(?: \\/)?>": 0.0,
-            "[A-Za-z0-9\\.,;:!?()\\\"'%\\-]+": 1.0,
-            "\\b[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}-[0-5][0-9a-fA-F]{3}-[089ab][0-9a-fA-F]{3}-\\b[0-9a-fA-F]{12}\\b ": 0.0,
-            "\\d+": 0.0,
+            "\\d+": 0.9381606640338639,
             "\\s+$": 0.0,
             "^\\s+": 0.0,
             "https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,255}\\.[a-z]{2,6}\\b(?:[-a-zA-Z0-9@:%_\\+.~#()?&//=]*)": 0.0
@@ -1300,8 +1221,8 @@
       "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
       "kwargs": {
         "column": "year",
-        "max_value": 9.8523461720351e-05,
-        "min_value": 9.8523461720351e-05,
+        "max_value": 0.0001182396481188072,
+        "min_value": 0.0001182396481188072,
         "strict_max": false,
         "strict_min": false
       },
@@ -1378,8 +1299,8 @@
       "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
       "kwargs": {
         "column": "month",
-        "max_value": 7.88187693762808e-05,
-        "min_value": 7.88187693762808e-05,
+        "max_value": 9.459171849504576e-05,
+        "min_value": 9.459171849504576e-05,
         "strict_max": false,
         "strict_min": false
       },
@@ -1402,39 +1323,39 @@
         "column": "state_dept",
         "mostly": 1.0,
         "value_set": [
-          "caldas",
-          "cesar",
-          "casanare",
-          "valle del cauca",
-          "antioquia",
-          "norte de santander",
-          "guaviare",
-          "caqueta",
-          "la guajira",
-          "atlantico",
-          "choco",
-          "risaralda",
-          "bogota, d.c.",
-          "arauca",
-          "huila",
-          "cauca",
-          "putumayo",
-          "bolivar",
-          "vichada",
-          "cundinamarca",
-          "narino",
-          "sin informacion",
-          "guainia",
+          "boyaca",
           "magdalena",
           "tolima",
-          "boyaca",
-          "cordoba",
-          "quindio",
-          "sucre",
-          "vaupes",
-          "meta",
           "santander",
-          "amazonas"
+          "caqueta",
+          "vaupes",
+          "guainia",
+          "cordoba",
+          "narino",
+          "bogota, d.c.",
+          "arauca",
+          "vichada",
+          "huila",
+          "la guajira",
+          "guaviare",
+          "risaralda",
+          "amazonas",
+          "meta",
+          "choco",
+          "cesar",
+          "antioquia",
+          "cundinamarca",
+          "putumayo",
+          "norte de santander",
+          "sucre",
+          "atlantico",
+          "bolivar",
+          "caldas",
+          "cauca",
+          "quindio",
+          "sin informacion",
+          "casanare",
+          "valle del cauca"
         ]
       },
       "meta": {
@@ -1477,8 +1398,8 @@
       "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
       "kwargs": {
         "column": "state_dept",
-        "max_value": 0.0002167516157847722,
-        "min_value": 0.0002167516157847722,
+        "max_value": 0.00026012722586137585,
+        "min_value": 0.00026012722586137585,
         "strict_max": false,
         "strict_min": false
       },
@@ -1501,23 +1422,23 @@
         "column": "victimization_fact",
         "mostly": 1.0,
         "value_set": [
-          "acto terrorista/atentados/combates/enfrentamientos/hostigamientos",
-          "homicidio",
+          "lesiones personales y psicologicas que produzcan o no incapacidad permanente",
           "desaparicion forzada",
+          "tortura",
+          "amenaza",
+          "confinamiento",
+          "perdida de bienes muebles o inmuebles",
+          "sin informacion",
+          "abandono o despojo forzado de tierras",
+          "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
+          "minas antipersonal, municion sin explotar y artefacto explosivo improvisado",
+          "homicidio",
+          "desplazamiento forzado",
+          "eventos masivos",
           "lesiones personales fisicas",
           "delitos contra la libertad y la integridad sexual en desarrollo del conflicto armado",
-          "abandono o despojo forzado de tierras",
-          "lesiones personales y psicologicas que produzcan o no incapacidad permanente",
-          "sin informacion",
-          "perdida de bienes muebles o inmuebles",
-          "confinamiento",
-          "amenaza",
-          "eventos masivos",
-          "minas antipersonal, municion sin explotar y artefacto explosivo improvisado",
+          "acto terrorista/atentados/combates/enfrentamientos/hostigamientos",
           "secuestro",
-          "tortura",
-          "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
-          "desplazamiento forzado",
           "lesiones personales psicologicas"
         ]
       },
@@ -1561,8 +1482,8 @@
       "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
       "kwargs": {
         "column": "victimization_fact",
-        "max_value": 0.00011822815406442121,
-        "min_value": 0.00011822815406442121,
+        "max_value": 0.00014188757774256865,
+        "min_value": 0.00014188757774256865,
         "strict_max": false,
         "strict_min": false
       },
@@ -1585,11 +1506,11 @@
         "column": "sex",
         "mostly": 1.0,
         "value_set": [
-          "lgbti",
+          "hombre",
+          "intersexual",
           "sin informacion",
           "mujer",
-          "intersexual",
-          "hombre"
+          "lgbti"
         ]
       },
       "meta": {
@@ -1632,8 +1553,8 @@
       "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
       "kwargs": {
         "column": "sex",
-        "max_value": 3.2841153906783666e-05,
-        "min_value": 3.2841153906783666e-05,
+        "max_value": 3.9413216039602396e-05,
+        "min_value": 3.9413216039602396e-05,
         "strict_max": false,
         "strict_min": false
       },
@@ -1656,14 +1577,14 @@
         "column": "ethnic_group",
         "mostly": 1.0,
         "value_set": [
-          "afrocolombiano",
-          "raizal",
-          "mestizo",
-          "palenquero",
           "indigena",
+          "palenquero",
           "otro",
-          "rom",
-          "ninguna"
+          "raizal",
+          "afrocolombiano",
+          "mestizo",
+          "ninguna",
+          "rom"
         ]
       },
       "meta": {
@@ -1706,8 +1627,8 @@
       "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
       "kwargs": {
         "column": "ethnic_group",
-        "max_value": 5.254584625085387e-05,
-        "min_value": 5.254584625085387e-05,
+        "max_value": 6.306114566336384e-05,
+        "min_value": 6.306114566336384e-05,
         "strict_max": false,
         "strict_min": false
       },
@@ -1730,18 +1651,18 @@
         "column": "age_range",
         "mostly": 1.0,
         "value_set": [
-          "0-13",
-          "14-26",
+          "29-59",
+          "60-110",
+          "27-59",
           "sin informacion",
           "61-100",
-          "27-59",
-          "12-17",
-          "29-59",
+          "0-13",
+          "6-11",
           "29-60",
+          "14-26",
           "0-5",
           "60+",
-          "60-110",
-          "6-11",
+          "12-17",
           "18-28"
         ]
       },
@@ -1785,8 +1706,8 @@
       "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
       "kwargs": {
         "column": "age_range",
-        "max_value": 8.538700015763754e-05,
-        "min_value": 8.538700015763754e-05,
+        "max_value": 0.00010247436170296624,
+        "min_value": 0.00010247436170296624,
         "strict_max": false,
         "strict_min": false
       },
@@ -1802,81 +1723,13 @@
           "num_batches": 1
         }
       }
-    },
-    {
-      "expectation_type": "expect_column_values_to_be_in_set",
-      "kwargs": {
-        "column": "total_victim_flag",
-        "mostly": 1.0,
-        "value_set": [
-          "sin informacion",
-          "reportado"
-        ]
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "total_victim_flag"
-            },
-            "metric_name": "column.distinct_values",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1,
-          "parse_strings_as_datetimes": false
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_unique_value_count_to_be_between",
-      "kwargs": {
-        "column": "total_victim_flag",
-        "max_value": 2,
-        "min_value": 2,
-        "strict_max": false,
-        "strict_min": false
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "total_victim_flag"
-            },
-            "metric_name": "column.distinct_values.count",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1
-        }
-      }
-    },
-    {
-      "expectation_type": "expect_column_proportion_of_unique_values_to_be_between",
-      "kwargs": {
-        "column": "total_victim_flag",
-        "max_value": 1.3136461562713467e-05,
-        "min_value": 1.3136461562713467e-05,
-        "strict_max": false,
-        "strict_min": false
-      },
-      "meta": {
-        "profiler_details": {
-          "metric_configuration": {
-            "domain_kwargs": {
-              "column": "total_victim_flag"
-            },
-            "metric_name": "column.unique_proportion",
-            "metric_value_kwargs": null
-          },
-          "num_batches": 1
-        }
-      }
     }
   ],
   "ge_cloud_id": null,
   "meta": {
     "citations": [
       {
-        "citation_date": "2026-04-16T01:31:47.206336Z",
+        "citation_date": "2026-04-17T03:11:51.051592Z",
         "comment": "Created by effective Rule-Based Profiler of OnboardingDataAssistant with the configuration included.\n"
       }
     ],

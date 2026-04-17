@@ -1,6 +1,5 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.empty import EmptyOperator
 from datetime import datetime, timedelta
 from scripts.ingest_source1 import ingest_source1
 from scripts.ingest_source2 import ingest_source2
@@ -8,12 +7,13 @@ from scripts.ingest_source3 import ingest_source3
 from scripts.transform_source1 import transform_source1
 from scripts.transform_source2 import transform_source2
 from scripts.transform_source3 import transform_source3
-from scripts.merge_sources import run_merge
+from scripts.concat_sources import run_concat
+from scripts.consolidate import consolidate
 from scripts.validate import validate_all
 
 default_args = {
     "retries": 2,
-    "retry_delay": timedelta(minutes=5),
+    "retry_delay": timedelta(minutes=2),
 }
 
 with DAG(
@@ -26,9 +26,6 @@ with DAG(
     max_active_runs=1,
     tags=["etl", "victims", "sdg16"],
 ) as dag:
-
-    start = EmptyOperator(task_id="start")
-    end = EmptyOperator(task_id="end")
 
     # ── Ingesta ───────────────────────────────────────────────────────────────
 
@@ -89,16 +86,27 @@ with DAG(
         },
     )
 
-    # ── Merge ─────────────────────────────────────────────────────────────────
+    # ── Concatenación ─────────────────────────────────────────────────────────
 
-    task_merge = PythonOperator(
-        task_id="merge_sources",
-        python_callable=run_merge,
+    task_concat = PythonOperator(
+        task_id="concat_sources",
+        python_callable=run_concat,
         op_kwargs={
             "source1_path": "/opt/airflow/data/processed/source1_transformed.parquet",
             "source2_path": "/opt/airflow/data/processed/source2_transformed.parquet",
             "source3_path": "/opt/airflow/data/processed/source3_transformed.parquet",
             "output_path": "/opt/airflow/data/processed/dataset_final.parquet",
+        },
+    )
+
+    # ── Consolidación ─────────────────────────────────────────────────────────
+
+    task_consolidate = PythonOperator(
+        task_id="consolidate_dataset",
+        python_callable=consolidate,
+        op_kwargs={
+            "input_path": "/opt/airflow/data/processed/dataset_final.parquet",
+            "output_path": "/opt/airflow/data/processed/dataset_consolidated.parquet",
         },
     )
 
@@ -108,7 +116,7 @@ with DAG(
         task_id="validate_great_expectations",
         python_callable=validate_all,
         op_kwargs={
-            "dataset_final_path": "/opt/airflow/data/processed/dataset_final.parquet",
+            "dataset_final_path": "/opt/airflow/data/processed/dataset_consolidated.parquet",
             "gx_root": "/opt/airflow/great_expectations",
         },
     )
@@ -122,11 +130,9 @@ with DAG(
 
     # ── Flujo ─────────────────────────────────────────────────────────────────
 
-    start >> [task_ingest_f1, task_ingest_f2, task_ingest_f3]
-
     task_ingest_f1 >> task_transform_f1
     task_ingest_f2 >> task_transform_f2
     task_ingest_f3 >> task_transform_f3
 
-    [task_transform_f1, task_transform_f2, task_transform_f3] >> task_merge
-    task_merge >> task_validate >> task_load >> end
+    [task_transform_f1, task_transform_f2, task_transform_f3] >> task_concat
+    task_concat >> task_consolidate >> task_validate >> task_load

@@ -155,7 +155,7 @@ def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
-    """Convert numeric and date columns before groupby. No category conversion yet."""
+    """Convert numeric and date columns before groupby. No category or flag yet."""
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(
             df["date_processing"],
@@ -168,9 +168,6 @@ def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
 
     if "total_victim" in df.columns:
         df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
-        df["total_victim_flag"] = df["total_victim"].apply(
-            lambda x: "sin informacion" if pd.isna(x) else "reportado"
-        )
 
     return df
 
@@ -186,8 +183,6 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         "ethnic_group",
         "age_range",
         "state_dept",
-        "source",
-        "total_victim_flag",
     ]
 
     group_cols = [c for c in group_cols if c in df.columns]
@@ -196,6 +191,11 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         df.groupby(group_cols, dropna=False)
         .agg(total_victim=("total_victim", "sum"))
         .reset_index()
+    )
+
+    # Add flag AFTER aggregation
+    df["total_victim_flag"] = df["total_victim"].apply(
+        lambda x: "sin informacion" if pd.isna(x) else "reportado"
     )
 
     return df
@@ -245,13 +245,13 @@ def transform_source3(input_path: str, output_path: str):
     df = normalize_ethnicity(df)
     df = normalize_age_range(df)
 
-    # Prepare numeric/date types before groupby (no category yet)
+    # Prepare numeric/date types before groupby (no category or flag yet)
     df = prepare_for_groupby(df)
 
-    # Groupby on explicit dimension columns only
+    # Groupby then add flag after
     df = group_and_aggregate(df)
 
-    # Convert to category AFTER groupby (fewer rows now)
+    # Convert to category AFTER groupby
     df = cast_categories(df)
 
     print(f"Rows after transform: {len(df)}")

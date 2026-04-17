@@ -90,16 +90,13 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
     Use size() to count victims per group instead of summing.
     """
     group_cols = [
-        "vulnerability_index",
         "sex",
         "ethnic_group",
         "age_range",
         "victimization_fact",
-        "commune",
         "date_processing",
         "year",
         "month",
-        "source",
         "state_dept",
     ]
 
