@@ -1,8 +1,24 @@
+#import the necessary libraries
 import pandas as pd
 import sqlite3
 import os
 
 def ingest_source1(sqlite_path, output_path):
+    """
+    Ingests victim data from a local SQLite database and saves it as a Parquet file.
+
+    Connects to the SQLite database at "sqlite_path", executes a JOIN query across
+    five tables (victims, person, victimizing_act, location,registration_date) 
+    to reconstruct a flat, analysis-ready record per victim,
+    tags each row with "source1_cali" for traceability, and writes the result
+    to "output_path" in Parquet format.
+
+    Raises FileNotFoundError if the database file does not exist.
+
+    Args:
+        sqlite_path (str): Path to the SQLite database file.
+        output_path (str): Destination path for the output Parquet file.
+    """
 
     if os.path.exists(sqlite_path):
         conn = sqlite3.connect(sqlite_path)
@@ -31,4 +47,3 @@ def ingest_source1(sqlite_path, output_path):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_parquet(output_path, index=False)
     print(f"Source 1 ingested: {len(df)} records")
-

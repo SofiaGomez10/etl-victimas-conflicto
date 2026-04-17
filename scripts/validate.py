@@ -1,5 +1,7 @@
+# Import required libraries
 import pandas as pd
 import great_expectations as gx
+# Import Great Expectations classes for runtime batch requests and checkpoints
 from great_expectations.core.batch import RuntimeBatchRequest
 from great_expectations.checkpoint import SimpleCheckpoint
 import warnings
@@ -10,15 +12,26 @@ warnings.filterwarnings("ignore")
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-GX_ROOT = os.path.join(os.path.dirname(__file__), "..", "great_expectations")
 SUITE_NAME = "suite_dataset_final"
 DATASOURCE_NAME = "pandas_runtime"
-DATA_ASSET_NAME = "dataset_final"
+DATA_ASSET_NAME = "dataset_consolidated"
 
 
 # ── Setup context ─────────────────────────────────────────────────────────────
 
 def get_context(gx_root: str):
+    """
+    Creates and returns a Great Expectations FileDataContext.
+
+    Initializes the GX context from the given root directory,
+    which must contain a great_expectations.yml configuration file.
+
+    Args:
+        gx_root (str): Path to the Great Expectations root directory.
+
+    Returns:
+        FileDataContext: Initialized GX context instance.
+    """
     context = gx.data_context.FileDataContext.create(gx_root)
     return context
 
@@ -26,6 +39,19 @@ def get_context(gx_root: str):
 # ── Add datasource ────────────────────────────────────────────────────────────
 
 def add_datasource(context):
+    """
+    Registers a Pandas runtime datasource in the GX context.
+
+    If the datasource already exists, it is reused without modification.
+    Otherwise, a new one is created using a RuntimeDataConnector
+    backed by the PandasExecutionEngine.
+
+    Args:
+        context (FileDataContext): Active GX context instance.
+
+    Returns:
+        FileDataContext: Context with the datasource registered.
+    """
     datasource_config = {
         "name": DATASOURCE_NAME,
         "class_name": "Datasource",
@@ -50,10 +76,25 @@ def add_datasource(context):
     return context
 
 
-# ── Create suite with Onboarding Assistant ─────────────────────────────────────
+# ── Create suite with Onboarding Assistant ────────────────────────────────────
 
 def create_suite(context, df: pd.DataFrame):
-    # Delete existing suite if exists
+    """
+    Creates a new expectation suite by profiling the given DataFrame.
+
+    Deletes any existing suite with the same name, then runs the GX
+    Onboarding Assistant to automatically infer expectations from the data.
+    The resulting suite is saved to the GX context.
+
+    Args:
+        context (FileDataContext): Active GX context instance.
+        df (pd.DataFrame): DataFrame used for profiling.
+
+    Returns:
+        ExpectationSuite: Generated and saved expectation suite.
+    """
+
+    # Delete existing suite to avoid conflicts with the new profiling
     try:
         context.delete_expectation_suite(SUITE_NAME)
         print(f"Existing suite '{SUITE_NAME}' deleted")
@@ -68,7 +109,7 @@ def create_suite(context, df: pd.DataFrame):
         batch_identifiers={"batch_id": "profiling_batch"},
     )
 
-    # Use Onboarding Data Assistant to auto-generate expectations
+    # Run Onboarding Assistant to auto-generate expectations from the data
     result = context.assistants.onboarding.run(
         batch_request=batch_request,
         exclude_column_names=[],
@@ -84,6 +125,22 @@ def create_suite(context, df: pd.DataFrame):
 # ── Validate ──────────────────────────────────────────────────────────────────
 
 def run_validation(context, df: pd.DataFrame):
+    """
+    Runs the validation checkpoint against the given DataFrame.
+
+    Creates or reuses a SimpleCheckpoint linked to the expectation suite,
+    executes it against the provided data, and raises an error if validation fails.
+
+    Args:
+        context (FileDataContext): Active GX context instance.
+        df (pd.DataFrame): DataFrame to validate.
+
+    Returns:
+        CheckpointResult: Object containing detailed validation results.
+
+    Raises:
+        ValueError: If one or more expectations fail during validation.
+    """
     batch_request = RuntimeBatchRequest(
         datasource_name=DATASOURCE_NAME,
         data_connector_name="runtime_connector",
@@ -93,24 +150,25 @@ def run_validation(context, df: pd.DataFrame):
     )
 
     checkpoint_config = {
-        "name": "checkpoint_dataset_final",
+        "name": "checkpoint_dataset_consolidated",
         "config_version": 1,
         "class_name": "SimpleCheckpoint",
         "expectation_suite_name": SUITE_NAME,
     }
 
+    # Reuse existing checkpoint or create a new one
     try:
-        context.get_checkpoint("checkpoint_dataset_final")
+        context.get_checkpoint("checkpoint_dataset_consolidated")
     except Exception:
         context.add_checkpoint(**checkpoint_config)
 
     results = context.run_checkpoint(
-        checkpoint_name="checkpoint_dataset_final",
+        checkpoint_name="checkpoint_dataset_consolidated",
         validations=[{"batch_request": batch_request}],
     )
 
     success = results.success
-    print(f"\nValidation result: {'PASSED ✅' if success else 'FAILED ❌'}")
+    print(f"\nValidation result: {'PASSED' if success else 'FAILED'}")
 
     if not success:
         raise ValueError("Great Expectations validation failed. Check the Data Docs for details.")
@@ -121,7 +179,27 @@ def run_validation(context, df: pd.DataFrame):
 # ── Main entry point (called from Airflow) ────────────────────────────────────
 
 def validate_all(dataset_final_path: str, gx_root: str):
-    print("Loading dataset_final...")
+    """
+    Orchestrates the full gx validation pipeline for the consolidated dataset.
+
+    Loads the dataset from a Parquet file, sets up the gx context and datasource,
+    creates the expectation suite if it does not exist, and runs the validation.
+    Intended to be called as a task from an Airflow DAG.
+
+    Pipeline steps:
+        1. Load the consolidated dataset from Parquet.
+        2. Initialize the gx context and datasource.
+        3. Create the expectation suite via profiling if not already present.
+        4. Run the validation checkpoint.
+
+    Args:
+        dataset_final_path (str): Path to the consolidated Parquet file.
+        gx_root (str): Path to the Great Expectations root directory.
+
+    Raises:
+        ValueError: Propagated from run_validation if validation fails.
+    """
+    print("Loading dataset_consolidated...")
     df = pd.read_parquet(dataset_final_path)
     print(f"Rows: {len(df)} · Columns: {len(df.columns)}")
 
@@ -129,7 +207,6 @@ def validate_all(dataset_final_path: str, gx_root: str):
     context = get_context(gx_root)
     context = add_datasource(context)
 
-    # Create suite if it doesn't exist yet
     suite_path = os.path.join(gx_root, "expectations", f"{SUITE_NAME}.json")
     if not os.path.exists(suite_path):
         print("Suite not found — running Onboarding Assistant to create it...")
@@ -145,6 +222,6 @@ def validate_all(dataset_final_path: str, gx_root: str):
 
 if __name__ == "__main__":
     validate_all(
-        dataset_final_path="data/processed/dataset_final.parquet",
-        gx_root="great_expectations",
+        dataset_final_path="data/processed/dataset_consolidated.parquet",
+        gx_root="great_expectations/gx",
     )

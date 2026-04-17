@@ -5,6 +5,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: mysql+pymysql://airflow:airflow@mysql_airflow:3306/airflow
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    PYTHONPATH: /opt/airflow
   volumes:
     - ./dags:/opt/airflow/dags
     - ./scripts:/opt/airflow/scripts
@@ -44,11 +45,11 @@ services:
     container_name: mysql_dw
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: dw_victimas
+      MYSQL_DATABASE: dw_victims
       MYSQL_USER: etl_user
       MYSQL_PASSWORD: etl_password
     ports:
-      - "3307:3306"
+      - "3308:3306"
     volumes:
       - mysql_dw_data:/var/lib/mysql
     healthcheck:
@@ -104,6 +105,22 @@ services:
         condition: service_completed_successfully
     restart: always
 
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_TYPE: h2
+      MB_DB_FILE: /metabase-data/metabase.db
+    volumes:
+      - metabase_data:/metabase-data
+    depends_on:
+      mysql_dw:
+        condition: service_healthy
+    networks:
+      - etl_network
+
 networks:
   etl_network:
     driver: bridge
@@ -111,3 +128,4 @@ networks:
 volumes:
   mysql_airflow_data:
   mysql_dw_data:
+  metabase_data:
