@@ -20,86 +20,53 @@ def normalize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def normalize_unknown_values(df: pd.DataFrame) -> pd.DataFrame:
     unknown_variants = [
-        "no registra",
-        "no informa",
-        "sin informacion",
-        "no informado",
-        "no registrado",
-        "nan",
-        "none",
-        "nd",
-        "",
+        "no registra", "no informa", "sin informacion", "no informado",
+        "no registrado", "nan", "none", "nd", "",
     ]
-
     for col in df.select_dtypes(include="object").columns:
         df[col] = df[col].fillna("sin informacion")
         df[col] = df[col].replace(unknown_variants, "sin informacion")
-
     return df
 
 
 def normalize_ethnicity(df: pd.DataFrame) -> pd.DataFrame:
     if "ethnic_group" in df.columns:
-        afro_variants = [
-            "afrodescendiente",
-            "negro",
-            "moreno",
-        ]
-        df["ethnic_group"] = df["ethnic_group"].replace(afro_variants, "afrocolombiano")
+        df["ethnic_group"] = df["ethnic_group"].replace(
+            ["afrodescendiente", "negro", "moreno"], "afrocolombiano"
+        )
     return df
 
 
 def normalize_sex_column(df: pd.DataFrame) -> pd.DataFrame:
     if "sex" in df.columns:
-        sex_map = {
-            "masculino": "hombre",
-            "femenino": "mujer",
-        }
-        df["sex"] = df["sex"].replace(sex_map)
+        df["sex"] = df["sex"].replace({"masculino": "hombre", "femenino": "mujer"})
     return df
 
 
 def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
     if "age_range" in df.columns:
-        classification_map = {
-            "adulthood": "27-59",
-            "youth": "14-26",
-            "childhood": "0-13",
-            "older adults": "60+",
-        }
-        df["age_range"] = df["age_range"].replace(classification_map)
+        df["age_range"] = df["age_range"].replace({
+            "adulthood": "27-59", "youth": "14-26",
+            "childhood": "0-13", "older adults": "60+",
+        })
     return df
 
 
 def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
-    """Convert numeric and date columns before groupby. No category conversion yet."""
     if "vulnerability_index" in df.columns:
         df["vulnerability_index"] = pd.to_numeric(df["vulnerability_index"], errors="coerce")
-
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(df["date_processing"], errors="coerce")
         df["year"] = df["date_processing"].dt.year.astype("Int64")
         df["month"] = df["date_processing"].dt.month.astype("Int64")
-
     return df
 
 
 def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Each row in source 1 represents one victim.
-    Use size() to count victims per group instead of summing.
-    """
     group_cols = [
-        "sex",
-        "ethnic_group",
-        "age_range",
-        "victimization_fact",
-        "date_processing",
-        "year",
-        "month",
-        "state_dept",
+        "sex", "ethnic_group", "age_range", "victimization_fact",
+        "date_processing", "year", "month", "state_dept", "source",
     ]
-
     group_cols = [c for c in group_cols if c in df.columns]
 
     df = (
@@ -108,30 +75,16 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index(name="total_victim")
     )
 
-    # Add flag after aggregation since total_victim now exists
     df["total_victim_flag"] = df["total_victim"].apply(
         lambda x: "sin informacion" if pd.isna(x) else "reportado"
     )
-
     return df
 
 
 def cast_categories(df: pd.DataFrame) -> pd.DataFrame:
-    """Convert to category AFTER groupby when dataframe is smaller."""
-    categorical_cols = [
-        "sex",
-        "ethnic_group",
-        "age_range",
-        "victimization_fact",
-        "commune",
-        "state_dept",
-        "total_victim_flag",
-    ]
-
-    for col in categorical_cols:
+    for col in ["sex", "ethnic_group", "age_range", "victimization_fact", "state_dept", "source", "total_victim_flag"]:
         if col in df.columns:
             df[col] = df[col].astype("category")
-
     return df
 
 
@@ -145,8 +98,6 @@ def transform_source1(input_path: str, output_path: str):
 
     if "classification" in df.columns:
         df = df.rename(columns={"classification": "age_range"})
-
-    # Drop total_victim from SQLite if present (it has wrong values)
     if "total_victim" in df.columns:
         df = df.drop(columns=["total_victim"])
 
@@ -155,14 +106,8 @@ def transform_source1(input_path: str, output_path: str):
     df = normalize_ethnicity(df)
     df = normalize_sex_column(df)
     df = normalize_age_range(df)
-
-    # Prepare numeric/date types before groupby
     df = prepare_for_groupby(df)
-
-    # Count victims per group using size()
     df = group_and_aggregate(df)
-
-    # Convert to category AFTER groupby
     df = cast_categories(df)
 
     print(f"Rows after transform: {len(df)}")

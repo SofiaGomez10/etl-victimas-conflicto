@@ -24,105 +24,47 @@ def normalize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def normalize_unknown_values(df: pd.DataFrame) -> pd.DataFrame:
     unknown_variants = [
-        "no registra",
-        "no informa",
-        "sin informacion",
-        "no informado",
-        "no registrado",
-        "sin definir",
-        "nan",
-        "none",
-        "nd",
-        "",
+        "no registra", "no informa", "sin informacion", "no informado",
+        "no registrado", "sin definir", "nan", "none", "nd", "",
     ]
-
     for col in df.select_dtypes(include="object").columns:
         df[col] = df[col].fillna("sin informacion")
         df[col] = df[col].replace(unknown_variants, "sin informacion")
-
     return df
 
 
 def normalize_departments(df: pd.DataFrame) -> pd.DataFrame:
     departamentos = {
-        "91": "amazonas",
-        "05": "antioquia",
-        "81": "arauca",
-        "08": "atlantico",
-        "11": "bogota, d.c.",
-        "13": "bolivar",
-        "15": "boyaca",
-        "17": "caldas",
-        "18": "caqueta",
-        "85": "casanare",
-        "19": "cauca",
-        "20": "cesar",
-        "27": "choco",
-        "23": "cordoba",
-        "25": "cundinamarca",
-        "94": "guainia",
-        "95": "guaviare",
-        "41": "huila",
-        "44": "la guajira",
-        "47": "magdalena",
-        "50": "meta",
-        "52": "narino",
-        "54": "norte de santander",
-        "86": "putumayo",
-        "63": "quindio",
-        "66": "risaralda",
-        "88": "san andres",
-        "68": "santander",
-        "70": "sucre",
-        "73": "tolima",
-        "76": "valle del cauca",
-        "97": "vaupes",
-        "99": "vichada",
+        "91": "amazonas", "05": "antioquia", "81": "arauca", "08": "atlantico",
+        "11": "bogota, d.c.", "13": "bolivar", "15": "boyaca", "17": "caldas",
+        "18": "caqueta", "85": "casanare", "19": "cauca", "20": "cesar",
+        "27": "choco", "23": "cordoba", "25": "cundinamarca", "94": "guainia",
+        "95": "guaviare", "41": "huila", "44": "la guajira", "47": "magdalena",
+        "50": "meta", "52": "narino", "54": "norte de santander", "86": "putumayo",
+        "63": "quindio", "66": "risaralda", "88": "san andres", "68": "santander",
+        "70": "sucre", "73": "tolima", "76": "valle del cauca", "97": "vaupes", "99": "vichada",
     }
-
     dept_to_code = {v: k for k, v in departamentos.items()}
 
     if "cod_estado_depto" in df.columns:
         df["cod_estado_depto"] = df["cod_estado_depto"].astype(str).str.zfill(2)
-        df.loc[
-            df["cod_estado_depto"].isin(["00", "0", "sin informacion", "nan", "none"]),
-            "cod_estado_depto"
-        ] = "sin informacion"
+        df.loc[df["cod_estado_depto"].isin(["00", "0", "sin informacion", "nan", "none"]), "cod_estado_depto"] = "sin informacion"
 
     if "state_dept" in df.columns:
-        df.loc[
-            df["state_dept"].isin(["sin definir", "sin informacion", "nan", "none"]),
-            "state_dept"
-        ] = "sin informacion"
+        df.loc[df["state_dept"].isin(["sin definir", "sin informacion", "nan", "none"]), "state_dept"] = "sin informacion"
 
     if "cod_estado_depto" in df.columns and "state_dept" in df.columns:
-        mask_code_missing = (
-            df["cod_estado_depto"].eq("sin informacion")
-            & df["state_dept"].ne("sin informacion")
-        )
-        df.loc[mask_code_missing, "cod_estado_depto"] = (
-            df.loc[mask_code_missing, "state_dept"].map(dept_to_code)
-        )
+        mask = df["cod_estado_depto"].eq("sin informacion") & df["state_dept"].ne("sin informacion")
+        df.loc[mask, "cod_estado_depto"] = df.loc[mask, "state_dept"].map(dept_to_code)
 
-        mask_name_missing = (
-            df["state_dept"].eq("sin informacion")
-            & df["cod_estado_depto"].ne("sin informacion")
-        )
-        df.loc[mask_name_missing, "state_dept"] = (
-            df.loc[mask_name_missing, "cod_estado_depto"].map(departamentos)
-        )
+        mask = df["state_dept"].eq("sin informacion") & df["cod_estado_depto"].ne("sin informacion")
+        df.loc[mask, "state_dept"] = df.loc[mask, "cod_estado_depto"].map(departamentos)
 
     if "cod_estado_depto" in df.columns:
-        df.loc[
-            ~df["cod_estado_depto"].isin(list(departamentos.keys()) + ["sin informacion"]),
-            "cod_estado_depto"
-        ] = "sin informacion"
+        df.loc[~df["cod_estado_depto"].isin(list(departamentos.keys()) + ["sin informacion"]), "cod_estado_depto"] = "sin informacion"
 
     if "state_dept" in df.columns:
-        df.loc[
-            ~df["state_dept"].isin(list(departamentos.values()) + ["sin informacion"]),
-            "state_dept"
-        ] = "sin informacion"
+        df.loc[~df["state_dept"].isin(list(departamentos.values()) + ["sin informacion"]), "state_dept"] = "sin informacion"
 
     return df
 
@@ -133,13 +75,10 @@ def normalize_ethnicity(df: pd.DataFrame) -> pd.DataFrame:
             "afrocolombiano (acreditado ra)": "afrocolombiano",
             "negro(a) o afrocolombiano(a)": "afrocolombiano",
             "negro (acreditado ra)": "afrocolombiano",
-            "indigena": "indigena",
-            "indigena (acreditado ra)": "indigena",
-            "gitano(a) rom": "rom",
-            "gitano (rrom) (acreditado ra)": "rom",
+            "indigena": "indigena", "indigena (acreditado ra)": "indigena",
+            "gitano(a) rom": "rom", "gitano (rrom) (acreditado ra)": "rom",
             "raizal del archipielago de san andres y providencia": "raizal",
-            "palenquero (acreditado ra)": "palenquero",
-            "palenquero": "palenquero",
+            "palenquero (acreditado ra)": "palenquero", "palenquero": "palenquero",
         })
     return df
 
@@ -155,36 +94,22 @@ def normalize_age_range(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def prepare_for_groupby(df: pd.DataFrame) -> pd.DataFrame:
-    """Convert numeric and date columns before groupby. No category or flag yet."""
     if "date_processing" in df.columns:
         df["date_processing"] = pd.to_datetime(
-            df["date_processing"],
-            format="mixed",
-            dayfirst=True,
-            errors="coerce"
+            df["date_processing"], format="mixed", dayfirst=True, errors="coerce"
         )
         df["year"] = df["date_processing"].dt.year.astype("Int64")
         df["month"] = df["date_processing"].dt.month.astype("Int64")
-
     if "total_victim" in df.columns:
         df["total_victim"] = pd.to_numeric(df["total_victim"], errors="coerce")
-
     return df
 
 
 def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
-    """Group by explicit dimension columns only."""
     group_cols = [
-        "date_processing",
-        "year",
-        "month",
-        "victimization_fact",
-        "sex",
-        "ethnic_group",
-        "age_range",
-        "state_dept",
+        "date_processing", "year", "month", "victimization_fact",
+        "sex", "ethnic_group", "age_range", "state_dept", "source",
     ]
-
     group_cols = [c for c in group_cols if c in df.columns]
 
     df = (
@@ -193,30 +118,16 @@ def group_and_aggregate(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
 
-    # Add flag AFTER aggregation
     df["total_victim_flag"] = df["total_victim"].apply(
         lambda x: "sin informacion" if pd.isna(x) else "reportado"
     )
-
     return df
 
 
 def cast_categories(df: pd.DataFrame) -> pd.DataFrame:
-    """Convert to category AFTER groupby when dataframe is smaller."""
-    categorical_cols = [
-        "state_dept",
-        "sex",
-        "ethnic_group",
-        "age_range",
-        "victimization_fact",
-        "source",
-        "total_victim_flag",
-    ]
-
-    for col in categorical_cols:
+    for col in ["state_dept", "sex", "ethnic_group", "age_range", "victimization_fact", "source", "total_victim_flag"]:
         if col in df.columns:
             df[col] = df[col].astype("category")
-
     return df
 
 
@@ -226,15 +137,10 @@ def transform_source3(input_path: str, output_path: str):
     print(f"Rows before transform: {len(df)}")
 
     df = normalize_column_names(df)
-
     df = df.rename(columns={
-        "fecha_corte": "date_processing",
-        "estado_depto": "state_dept",
-        "sexo": "sex",
-        "hecho": "victimization_fact",
-        "etnia": "ethnic_group",
-        "ciclo_vital": "age_range",
-        "per_ocu": "total_victim",
+        "fecha_corte": "date_processing", "estado_depto": "state_dept",
+        "sexo": "sex", "hecho": "victimization_fact", "etnia": "ethnic_group",
+        "ciclo_vital": "age_range", "per_ocu": "total_victim",
     })
 
     df["source"] = "nacional (colombia)"
@@ -244,14 +150,8 @@ def transform_source3(input_path: str, output_path: str):
     df = normalize_departments(df)
     df = normalize_ethnicity(df)
     df = normalize_age_range(df)
-
-    # Prepare numeric/date types before groupby (no category or flag yet)
     df = prepare_for_groupby(df)
-
-    # Groupby then add flag after
     df = group_and_aggregate(df)
-
-    # Convert to category AFTER groupby
     df = cast_categories(df)
 
     print(f"Rows after transform: {len(df)}")

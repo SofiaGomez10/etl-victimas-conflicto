@@ -11,6 +11,7 @@ GROUP_COLS = [
     "sex",
     "ethnic_group",
     "age_range",
+    "source",
 ]
 
 
@@ -20,11 +21,9 @@ def consolidate(input_path: str, output_path: str):
     print(f"Rows before consolidation: {len(df)}")
     print(f"Duplicates before: {df.duplicated().sum()}")
 
-    # Convert category columns back to string for groupby
     for col in df.select_dtypes(include="category").columns:
         df[col] = df[col].astype(str)
 
-    # Keep only group cols that exist
     group_cols = [c for c in GROUP_COLS if c in df.columns]
 
     df = (

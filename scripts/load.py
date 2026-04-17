@@ -13,21 +13,21 @@ DB_CONFIG = {
 
 DDL = [
     """CREATE TABLE IF NOT EXISTS person (
-        id_person INT PRIMARY KEY,
+        id_person INT PRIMARY KEY NOT NULL,
         sex VARCHAR(100),
         ethnic_group VARCHAR(100),
         age_range VARCHAR(100)
     )""",
     """CREATE TABLE IF NOT EXISTS victimizing_act (
-        id_act INT PRIMARY KEY,
+        id_act INT PRIMARY KEY NOT NULL,
         victimization_fact VARCHAR(100)
     )""",
     """CREATE TABLE IF NOT EXISTS location (
-        id_location INT PRIMARY KEY,
+        id_location INT PRIMARY KEY NOT NULL,
         state_dept VARCHAR(100)
     )""",
     """CREATE TABLE IF NOT EXISTS registration_date (
-        date_processing DATE PRIMARY KEY,
+        date_processing DATE PRIMARY KEY NOT NULL,
         year INT,
         month INT
     )""",
@@ -37,10 +37,11 @@ DDL = [
         id_location INT,
         date_processing DATE,
         total_victim INT,
-        FOREIGN KEY (id_person) REFERENCES person(id_person),
-        FOREIGN KEY (id_act) REFERENCES victimizing_act(id_act),
-        FOREIGN KEY (id_location) REFERENCES location(id_location),
-        FOREIGN KEY (date_processing) REFERENCES registration_date(date_processing)
+        source VARCHAR(100),
+        CONSTRAINT fk_person FOREIGN KEY (id_person) REFERENCES person(id_person),
+        CONSTRAINT fk_act FOREIGN KEY (id_act) REFERENCES victimizing_act(id_act),
+        CONSTRAINT fk_location FOREIGN KEY (id_location) REFERENCES location(id_location),
+        CONSTRAINT fk_date FOREIGN KEY (date_processing) REFERENCES registration_date(date_processing)
     )""",
 ]
 
@@ -72,19 +73,23 @@ def load_to_mysql(dataset_path: str):
     dim_date = df[["date_processing", "year", "month"]].drop_duplicates(subset=["date_processing"])
 
     for _, r in dim_person.iterrows():
-        cur.execute("INSERT IGNORE INTO person VALUES (%s,%s,%s,%s)", (r.id, r.sex, r.ethnic_group, r.age_range))
+        cur.execute("INSERT IGNORE INTO person VALUES (%s,%s,%s,%s)",
+                    (r.id, r.sex, r.ethnic_group, r.age_range))
 
     for _, r in dim_act.iterrows():
-        cur.execute("INSERT IGNORE INTO victimizing_act VALUES (%s,%s)", (r.id, r.victimization_fact))
+        cur.execute("INSERT IGNORE INTO victimizing_act VALUES (%s,%s)",
+                    (r.id, r.victimization_fact))
 
     for _, r in dim_location.iterrows():
-        cur.execute("INSERT IGNORE INTO location VALUES (%s,%s)", (r.id, r.state_dept))
+        cur.execute("INSERT IGNORE INTO location VALUES (%s,%s)",
+                    (r.id, r.state_dept))
 
     for _, r in dim_date.iterrows():
         date_val = pd.Timestamp(r.date_processing).date() if pd.notna(r.date_processing) else None
         if date_val:
             cur.execute("INSERT IGNORE INTO registration_date VALUES (%s,%s,%s)",
-                        (date_val, int(r.year) if pd.notna(r.year) else None,
+                        (date_val,
+                         int(r.year) if pd.notna(r.year) else None,
                          int(r.month) if pd.notna(r.month) else None))
 
     conn.commit()
@@ -100,13 +105,14 @@ def load_to_mysql(dataset_path: str):
         if not date_val:
             continue
         cur.execute(
-            "INSERT INTO victims VALUES (%s,%s,%s,%s,%s)",
+            "INSERT INTO victims VALUES (%s,%s,%s,%s,%s,%s)",
             (
                 int(r.id) if pd.notna(r.id) else None,
-                int(r["id_act"]) if "id_act" in r and pd.notna(r["id_act"]) else None,
-                int(r["id_loc"]) if "id_loc" in r and pd.notna(r["id_loc"]) else None,
+                int(r["id_act"]) if pd.notna(r["id_act"]) else None,
+                int(r["id_loc"]) if pd.notna(r["id_loc"]) else None,
                 date_val,
                 int(r.total_victim) if pd.notna(r.total_victim) else None,
+                r.source if pd.notna(r.source) else None,
             ),
         )
 
