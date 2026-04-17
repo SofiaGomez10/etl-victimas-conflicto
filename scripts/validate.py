@@ -10,10 +10,9 @@ warnings.filterwarnings("ignore")
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-GX_ROOT = os.path.join(os.path.dirname(__file__), "..", "great_expectations")
 SUITE_NAME = "suite_dataset_final"
 DATASOURCE_NAME = "pandas_runtime"
-DATA_ASSET_NAME = "dataset_final"
+DATA_ASSET_NAME = "dataset_consolidated"
 
 
 # ── Setup context ─────────────────────────────────────────────────────────────
@@ -50,10 +49,9 @@ def add_datasource(context):
     return context
 
 
-# ── Create suite with Onboarding Assistant ─────────────────────────────────────
+# ── Create suite with Onboarding Assistant ────────────────────────────────────
 
 def create_suite(context, df: pd.DataFrame):
-    # Delete existing suite if exists
     try:
         context.delete_expectation_suite(SUITE_NAME)
         print(f"Existing suite '{SUITE_NAME}' deleted")
@@ -68,7 +66,6 @@ def create_suite(context, df: pd.DataFrame):
         batch_identifiers={"batch_id": "profiling_batch"},
     )
 
-    # Use Onboarding Data Assistant to auto-generate expectations
     result = context.assistants.onboarding.run(
         batch_request=batch_request,
         exclude_column_names=[],
@@ -93,24 +90,24 @@ def run_validation(context, df: pd.DataFrame):
     )
 
     checkpoint_config = {
-        "name": "checkpoint_dataset_final",
+        "name": "checkpoint_dataset_consolidated",
         "config_version": 1,
         "class_name": "SimpleCheckpoint",
         "expectation_suite_name": SUITE_NAME,
     }
 
     try:
-        context.get_checkpoint("checkpoint_dataset_final")
+        context.get_checkpoint("checkpoint_dataset_consolidated")
     except Exception:
         context.add_checkpoint(**checkpoint_config)
 
     results = context.run_checkpoint(
-        checkpoint_name="checkpoint_dataset_final",
+        checkpoint_name="checkpoint_dataset_consolidated",
         validations=[{"batch_request": batch_request}],
     )
 
     success = results.success
-    print(f"\nValidation result: {'PASSED ✅' if success else 'FAILED ❌'}")
+    print(f"\nValidation result: {'PASSED' if success else 'FAILED'}")
 
     if not success:
         raise ValueError("Great Expectations validation failed. Check the Data Docs for details.")
@@ -121,7 +118,7 @@ def run_validation(context, df: pd.DataFrame):
 # ── Main entry point (called from Airflow) ────────────────────────────────────
 
 def validate_all(dataset_final_path: str, gx_root: str):
-    print("Loading dataset_final...")
+    print("Loading dataset_consolidated...")
     df = pd.read_parquet(dataset_final_path)
     print(f"Rows: {len(df)} · Columns: {len(df.columns)}")
 
@@ -129,7 +126,6 @@ def validate_all(dataset_final_path: str, gx_root: str):
     context = get_context(gx_root)
     context = add_datasource(context)
 
-    # Create suite if it doesn't exist yet
     suite_path = os.path.join(gx_root, "expectations", f"{SUITE_NAME}.json")
     if not os.path.exists(suite_path):
         print("Suite not found — running Onboarding Assistant to create it...")
@@ -145,6 +141,6 @@ def validate_all(dataset_final_path: str, gx_root: str):
 
 if __name__ == "__main__":
     validate_all(
-        dataset_final_path="data/processed/dataset_final.parquet",
-        gx_root="great_expectations",
+        dataset_final_path="data/processed/dataset_consolidated.parquet",
+        gx_root="great_expectations/gx",
     )

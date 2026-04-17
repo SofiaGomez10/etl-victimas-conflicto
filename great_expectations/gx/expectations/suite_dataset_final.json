@@ -23,15 +23,15 @@
       "expectation_type": "expect_table_columns_to_match_set",
       "kwargs": {
         "column_set": [
-          "date_processing",
           "state_dept",
-          "age_range",
           "victimization_fact",
-          "ethnic_group",
-          "total_victim",
+          "date_processing",
+          "sex",
           "month",
           "year",
-          "sex"
+          "total_victim",
+          "age_range",
+          "ethnic_group"
         ],
         "exact_match": null
       },
@@ -1323,39 +1323,39 @@
         "column": "state_dept",
         "mostly": 1.0,
         "value_set": [
-          "boyaca",
-          "magdalena",
-          "tolima",
-          "santander",
-          "caqueta",
-          "vaupes",
-          "guainia",
-          "cordoba",
-          "narino",
-          "bogota, d.c.",
-          "arauca",
+          "choco",
           "vichada",
-          "huila",
+          "atlantico",
+          "caqueta",
+          "magdalena",
+          "santander",
+          "tolima",
+          "guainia",
+          "valle del cauca",
+          "putumayo",
+          "sucre",
+          "risaralda",
+          "caldas",
+          "boyaca",
+          "casanare",
+          "antioquia",
+          "norte de santander",
+          "vaupes",
+          "meta",
+          "cundinamarca",
+          "bogota, d.c.",
+          "amazonas",
+          "narino",
+          "sin informacion",
+          "cordoba",
+          "cesar",
+          "bolivar",
+          "cauca",
           "la guajira",
           "guaviare",
-          "risaralda",
-          "amazonas",
-          "meta",
-          "choco",
-          "cesar",
-          "antioquia",
-          "cundinamarca",
-          "putumayo",
-          "norte de santander",
-          "sucre",
-          "atlantico",
-          "bolivar",
-          "caldas",
-          "cauca",
-          "quindio",
-          "sin informacion",
-          "casanare",
-          "valle del cauca"
+          "arauca",
+          "huila",
+          "quindio"
         ]
       },
       "meta": {
@@ -1422,24 +1422,24 @@
         "column": "victimization_fact",
         "mostly": 1.0,
         "value_set": [
-          "lesiones personales y psicologicas que produzcan o no incapacidad permanente",
-          "desaparicion forzada",
-          "tortura",
-          "amenaza",
-          "confinamiento",
-          "perdida de bienes muebles o inmuebles",
-          "sin informacion",
-          "abandono o despojo forzado de tierras",
-          "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
-          "minas antipersonal, municion sin explotar y artefacto explosivo improvisado",
-          "homicidio",
-          "desplazamiento forzado",
-          "eventos masivos",
-          "lesiones personales fisicas",
           "delitos contra la libertad y la integridad sexual en desarrollo del conflicto armado",
+          "lesiones personales psicologicas",
+          "lesiones personales y psicologicas que produzcan o no incapacidad permanente",
+          "perdida de bienes muebles o inmuebles",
           "acto terrorista/atentados/combates/enfrentamientos/hostigamientos",
+          "abandono o despojo forzado de tierras",
+          "desaparicion forzada",
+          "vinculacion de ninos ninas y adolescentes a actividades relacionadas con grupos armados",
+          "amenaza",
           "secuestro",
-          "lesiones personales psicologicas"
+          "sin informacion",
+          "homicidio",
+          "tortura",
+          "lesiones personales fisicas",
+          "desplazamiento forzado",
+          "confinamiento",
+          "eventos masivos",
+          "minas antipersonal, municion sin explotar y artefacto explosivo improvisado"
         ]
       },
       "meta": {
@@ -1506,11 +1506,11 @@
         "column": "sex",
         "mostly": 1.0,
         "value_set": [
-          "hombre",
           "intersexual",
+          "lgbti",
           "sin informacion",
-          "mujer",
-          "lgbti"
+          "hombre",
+          "mujer"
         ]
       },
       "meta": {
@@ -1577,13 +1577,13 @@
         "column": "ethnic_group",
         "mostly": 1.0,
         "value_set": [
-          "indigena",
           "palenquero",
-          "otro",
-          "raizal",
+          "ninguna",
           "afrocolombiano",
           "mestizo",
-          "ninguna",
+          "raizal",
+          "otro",
+          "indigena",
           "rom"
         ]
       },
@@ -1651,19 +1651,19 @@
         "column": "age_range",
         "mostly": 1.0,
         "value_set": [
-          "29-59",
-          "60-110",
-          "27-59",
-          "sin informacion",
-          "61-100",
-          "0-13",
           "6-11",
-          "29-60",
-          "14-26",
-          "0-5",
-          "60+",
+          "61-100",
           "12-17",
-          "18-28"
+          "60-110",
+          "0-13",
+          "29-60",
+          "0-5",
+          "sin informacion",
+          "14-26",
+          "60+",
+          "29-59",
+          "18-28",
+          "27-59"
         ]
       },
       "meta": {
@@ -1729,7 +1729,7 @@
   "meta": {
     "citations": [
       {
-        "citation_date": "2026-04-17T03:11:51.051592Z",
+        "citation_date": "2026-04-17T04:56:55.623474Z",
         "comment": "Created by effective Rule-Based Profiler of OnboardingDataAssistant with the configuration included.\n"
       }
     ],

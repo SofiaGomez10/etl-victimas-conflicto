@@ -10,6 +10,7 @@ from scripts.transform_source3 import transform_source3
 from scripts.concat_sources import run_concat
 from scripts.consolidate import consolidate
 from scripts.validate import validate_all
+from scripts.load import load_to_mysql
 
 default_args = {
     "retries": 2,
@@ -125,7 +126,10 @@ with DAG(
 
     task_load = PythonOperator(
         task_id="load_to_mysql",
-        python_callable=lambda: None,  # pending
+        python_callable=load_to_mysql,
+        op_kwargs={
+            "dataset_path": "/opt/airflow/data/processed/dataset_consolidated.parquet",
+        },
     )
 
     # ── Flujo ─────────────────────────────────────────────────────────────────

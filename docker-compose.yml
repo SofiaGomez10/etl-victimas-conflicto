@@ -45,7 +45,7 @@ services:
     container_name: mysql_dw
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: dw_victimas
+      MYSQL_DATABASE: dw_victims
       MYSQL_USER: etl_user
       MYSQL_PASSWORD: etl_password
     ports:
@@ -104,6 +104,19 @@ services:
       airflow-init:
         condition: service_completed_successfully
     restart: always
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_TYPE: h2
+    depends_on:
+      mysql_dw:
+        condition: service_healthy
+    networks:
+      - etl_network
 
 networks:
   etl_network:
