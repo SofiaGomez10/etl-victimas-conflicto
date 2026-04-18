@@ -10,14 +10,11 @@ import os
 warnings.filterwarnings("ignore")
 
 
-# ── Constants ─────────────────────────────────────────────────────────────────
-
 SUITE_NAME = "suite_dataset_final"
 DATASOURCE_NAME = "pandas_runtime"
 DATA_ASSET_NAME = "dataset_consolidated"
 
 
-# ── Setup context ─────────────────────────────────────────────────────────────
 
 def get_context(gx_root: str):
     """
@@ -35,8 +32,6 @@ def get_context(gx_root: str):
     context = gx.data_context.FileDataContext.create(gx_root)
     return context
 
-
-# ── Add datasource ────────────────────────────────────────────────────────────
 
 def add_datasource(context):
     """
@@ -76,8 +71,6 @@ def add_datasource(context):
     return context
 
 
-# ── Create suite with Onboarding Assistant ────────────────────────────────────
-
 def create_suite(context, df: pd.DataFrame):
     """
     Creates a new expectation suite by profiling the given DataFrame.
@@ -94,7 +87,7 @@ def create_suite(context, df: pd.DataFrame):
         ExpectationSuite: Generated and saved expectation suite.
     """
 
-    # Delete existing suite to avoid conflicts with the new profiling
+    #Delete existing suite to avoid conflicts with the new profiling
     try:
         context.delete_expectation_suite(SUITE_NAME)
         print(f"Existing suite '{SUITE_NAME}' deleted")
@@ -109,7 +102,7 @@ def create_suite(context, df: pd.DataFrame):
         batch_identifiers={"batch_id": "profiling_batch"},
     )
 
-    # Run Onboarding Assistant to auto-generate expectations from the data
+    #Run Onboarding Assistant to auto-generate expectations from the data
     result = context.assistants.onboarding.run(
         batch_request=batch_request,
         exclude_column_names=[],
@@ -122,7 +115,7 @@ def create_suite(context, df: pd.DataFrame):
     return suite
 
 
-# ── Validate ──────────────────────────────────────────────────────────────────
+#Validate 
 
 def run_validation(context, df: pd.DataFrame):
     """
@@ -156,7 +149,7 @@ def run_validation(context, df: pd.DataFrame):
         "expectation_suite_name": SUITE_NAME,
     }
 
-    # Reuse existing checkpoint or create a new one
+    #Reuse existing checkpoint or create a new one
     try:
         context.get_checkpoint("checkpoint_dataset_consolidated")
     except Exception:
@@ -176,7 +169,7 @@ def run_validation(context, df: pd.DataFrame):
     return results
 
 
-# ── Main entry point (called from Airflow) ────────────────────────────────────
+#Main entry point (called from Airflow) 
 
 def validate_all(dataset_final_path: str, gx_root: str):
     """
@@ -218,7 +211,7 @@ def validate_all(dataset_final_path: str, gx_root: str):
     run_validation(context, df)
 
 
-# ── Standalone execution ──────────────────────────────────────────────────────
+#Standalone execution 
 
 if __name__ == "__main__":
     validate_all(
