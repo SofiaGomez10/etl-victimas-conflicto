@@ -1,89 +1,119 @@
-# Armed Conflict Project – ETL
+# ETL Pipeline for Victims of Armed Conflict in Colombia
 
-ETL project focused on processing and analyzing datasets related to victims of armed conflicts. The repository includes data extraction, transformation, as well as data cleaning and exploratory analysis to ensure data quality and generate meaningful insights.
+This project implements an automated ETL (Extract, Transform, Load) pipeline for processing and analyzing data related to victims of armed conflicts in Colombia. The pipeline integrates multiple data sources, performs data quality validation using Great Expectations, and loads the consolidated data into a MySQL data warehouse for further analysis and visualization with Metabase.
 
-This project documents a reproducible ETL flow: the notebooks in `notebooks/` perform extraction and cleaning from `data/raw/` and generate artifacts in `data/processed/`. The code and dependencies are designed to facilitate reproducibility and academic collaboration.
+## Project Overview
 
-## Requirements
-- Python 3.8 or higher
-- git
-- (Optional) JupyterLab or Jupyter Notebook
-- Creating and activating a virtual environment is recommended
+The ETL pipeline is orchestrated using Apache Airflow and containerized with Docker. It processes data from three sources:
+- **Source 1**: Cali victims data (from SQLite)
+- **Source 2**: Santander victims data (CSV)
+- **Source 3**: API data from datos.gov.co
 
----
+The workflow includes ingestion, transformation, concatenation, consolidation, validation, and loading into MySQL.
+
+## Architecture
+
+```
+Data Sources → Airflow DAG → Transformations → Great Expectations → MySQL DW → Metabase
+```
+<img width="606" height="326" alt="image" src="https://github.com/user-attachments/assets/b38abf62-2ea7-41bb-9cec-5812e91c383a" />
+
+
+## Prerequisites
+
+- Docker and Docker Compose
+- At least 4GB RAM available for containers
+- Git
+
+## Setup and Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd etl-victimas-conflicto
+   ```
+
+2. **Start the services:**
+   ```bash
+   docker-compose up -d
+   ```
+
+   This will start:
+   - Airflow webserver (http://localhost:8080)
+   - Airflow scheduler
+   - MySQL databases (Airflow metadata and data warehouse)
+   - Metabase (http://localhost:3000)
+
+3. **Access the interfaces:**
+   - Airflow UI: http://localhost:8080 (admin/admin)
+   - Metabase: http://localhost:3000
+
+## Running the Pipeline
+
+1. In the Airflow UI, enable the DAG `dag_armed_conflict_victims`
+2. Trigger the DAG manually or wait for the scheduled run (daily at 6:00 AM UTC)
 
 ## Project Structure
+
 ```
-armed-conflict-ETL-project/
+etl-victimas-conflicto/
+│
+├── attachments/
+│   └── Metabase - Victims of the Armed Conflict in Colombia (2012–2026).pdf          # Graphical report exported from Metabase
+│
+├── dags/
+│   └── dag_conflict_victims.py          # Airflow DAG definition
+│
+├── scripts/
+│   ├── ingest_source1.py                # Ingest from Cali (SQLite)
+│   ├── ingest_source2.py                # Ingest from Santander (CSV)
+│   ├── ingest_source3.py                # Ingest from API
+│   ├── transform_source1.py             # Transform Cali data
+│   ├── transform_source2.py             # Transform Santander data
+│   ├── transform_source3.py             # Transform API data
+│   ├── concat_sources.py                # Concatenate transformed sources
+│   ├── consolidate.py                   # Final data consolidation
+│   ├── validate.py                      # Great Expectations validation
+│   └── load.py                          # Load to MySQL
 │
 ├── data/
-│   ├── raw/         # Original datasets (do not modify)
-│   ├── processed/    # Cleaned/transformed datasets
+│   ├── raw/                             # Raw input data
+│   └── processed/                       # Processed/transformed data
 │
-├── notebooks/       # Jupyter notebooks (EDA & analysis)
+├── great_expectations/                  # Data validation configurations
 │
-├── requirements.txt
+├── notebooks/                           # Initial Jupyter notebooks
+│   ├── eda.ipynb
+│   ├── extraction_transformation.ipynb
+│   └── load_visualization.ipynb
+│
+├── logs/                                # Airflow execution logs
+│
+├── docker-compose.yml                   # Docker services configuration
+├── Dockerfile                           # Airflow container definition
+├── requirements.txt                     # Python dependencies
 └── README.md
 ```
 
-### Output and data
-- Original data: `data/raw/`
-- Processed data: `data/processed`
+## Technologies Used
 
-### Technology stack and justification
-- **Python**: mature language with a strong ecosystem for data science.
-- **pandas / numpy**: manipulation and transformation of tabular data.
-- **Jupyter (Lab/Notebook)**: interactive environment for exploration, documentation, and reproducibility.
-- **matplotlib / seaborn**: static and exploratory visualization.
-- **scikit-learn** (if applicable): tools for preprocessing and modeling.
-- **virtualenv / venv + pip**: simple and explicit dependency management.
-- **nbdime**: diffs and merges specific to notebooks (avoids binary conflicts in .ipynb).
+- **Apache Airflow**: Workflow orchestration
+- **Python**: Data processing (pandas, numpy)
+- **MySQL**: Data storage
+- **Great Expectations**: Data quality validation
+- **Docker**: Containerization
+- **Metabase**: Data visualization
+- **Jupyter**: Exploratory data analysis
 
+## Data Sources
 
+- Cali victims data (SQLite database)
+- Santander victims data (CSV file)
+- Colombian government API (datos.gov.co)
 
+## Development Notes
 
-## Environment Setup
-
-It is recommended to use a virtual environment:
-
-### macOS/Linux
-```bash
-python -m venv venv
-source venv/bin/activate
-
-pip install -r requirements.txt
-```
-
-### Windows
-```bash
-python -m venv venv
-venv\Scripts\activate
-
-pip install -r requirements.txt
-```
----
-
-### Working with Notebooks (IMPORTANT)
-
-We keep outputs and some initial ETL funtion in notebooks, so follow these rules (only for developers who need to submit changes):
-
-Before committing:
-
-	1.	Restart Kernel
-	2.	Run All cells
-	3.	Save notebook
-	4.	Then commit
-
-This ensures:
-
-	•	Clean execution order
-	•	Reproducibility
-	•	Reduced merge conflicts
-
-### Required Tool: nbdime
-
-To properly manage notebook diffs and merges, install:
-```bash
-pip install nbdime
-nbdime config-git --enable
-```
+- The pipeline runs daily at 6:00 AM UTC
+- Data validation ensures quality before loading
+- Notebooks in `notebooks/` are for exploratory analysis and are not part of the automated pipeline
+- All data processing is containerized for reproducibility
