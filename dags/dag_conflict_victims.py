@@ -30,7 +30,7 @@ with DAG(
     tags=["etl", "victims", "sdg16"],
 ) as dag:
 
-    # ── Ingestion ───────────────────────────────────────────────────────────────
+    #Ingestion 
 
     # Ingest source 1: local SQLite database (Cali)
     task_ingest_f1 = PythonOperator(
@@ -63,7 +63,7 @@ with DAG(
         },
     )
 
-    # ── Transformation ────────────────────────────────────────────────────────
+    #Transformation 
    
     # Normalize and standardize source 1 (Cali)
     task_transform_f1 = PythonOperator(
@@ -95,7 +95,7 @@ with DAG(
         },
     )
 
-    # ── Concatenation ─────────────────────────────────────────────────────────
+    #Concatenation
 
     # Merge all three transformed sources into a single dataset
     task_concat = PythonOperator(
@@ -109,7 +109,7 @@ with DAG(
         },
     )
 
-    # ── Consolidation ─────────────────────────────────────────────────────────
+    #Consolidation
 
     # Group and aggregate victim counts to remove duplicates
     task_consolidate = PythonOperator(
@@ -121,7 +121,7 @@ with DAG(
         },
     )
 
-    # ── Validation Great Expectations ─────────────────────────────────────────
+    #Validation Great Expectations
 
     # Run data quality checks against the consolidated dataset
     task_validate = PythonOperator(
@@ -133,7 +133,7 @@ with DAG(
         },
     )
 
-    # ── Load ─────────────────────────────────────────────────────────────────
+    # Load 
 
     # Load the validated dataset into MySQL
     task_load = PythonOperator(
@@ -144,7 +144,7 @@ with DAG(
         },
     )
 
-    # ── DAG flow ─────────────────────────────────────────────────────────────────
+    #DAG flow 
     # Each source is ingested and transformed independently in parallel
     task_ingest_f1 >> task_transform_f1
     task_ingest_f2 >> task_transform_f2
